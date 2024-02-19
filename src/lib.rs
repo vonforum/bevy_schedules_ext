@@ -1,6 +1,5 @@
-use bevy::ecs::all_tuples;
-use bevy::ecs::schedule::{InternedScheduleLabel, ScheduleLabel};
-use bevy::prelude::*;
+use bevy_ecs::{prelude::*, schedule::{InternedScheduleLabel, ScheduleLabel}, all_tuples};
+use bevy_app::prelude::*;
 
 #[derive(Resource)]
 pub struct SimpleScheduleContainer<T: ScheduleLabel> {
@@ -77,11 +76,11 @@ macro_rules! impl_schedules_into_configs {
 all_tuples!(impl_schedules_into_configs, 1, 20, S, s);
 
 pub trait AppExt {
-	fn add_schedules<M, P: ScheduleLabel, S: SchedulesIntoConfigs<M>>(&mut self, parent: P, children: S);
+	fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(&mut self, parent: P, children: S);
 }
 
 impl AppExt for App {
-	fn add_schedules<M, P: ScheduleLabel, S: SchedulesIntoConfigs<M>>(&mut self, parent: P, children: S) {
+	fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(&mut self, parent: P, children: S) {
 		if !self.world.contains_resource::<SimpleScheduleContainer<P>>() {
 			self.world.insert_resource(SimpleScheduleContainer::<P>::new());
 

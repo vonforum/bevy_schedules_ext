@@ -1,5 +1,6 @@
-use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
-use bevy_schedule_mod::*;
+use bevy_ecs::schedule::ScheduleLabel;
+use bevy_app::prelude::*;
+use bevy_schedules_mod::*;
 
 #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
 struct A;
@@ -18,8 +19,6 @@ struct BA;
 
 fn main() {
 	let mut app = App::new();
-
-	app.add_plugins(DefaultPlugins);
 
 	app.add_schedules(Update, (A, B));
 	app.add_schedules(A, (AA, AB));
