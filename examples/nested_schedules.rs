@@ -1,6 +1,7 @@
-use bevy_ecs::schedule::ScheduleLabel;
 use bevy_app::prelude::*;
-use bevy_schedules_mod::*;
+use bevy_ecs::schedule::ScheduleLabel;
+
+use bevy_mod_schedules::prelude::*;
 
 #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
 struct A;
@@ -46,4 +47,3 @@ fn main() {
 
 	app.run();
 }
-

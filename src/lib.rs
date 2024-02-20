@@ -5,6 +5,10 @@ use bevy_ecs::{
 	schedule::{InternedScheduleLabel, ScheduleLabel},
 };
 
+pub mod prelude {
+	pub use crate::AppExt;
+}
+
 #[derive(Resource)]
 pub struct SimpleScheduleContainer<T: ScheduleLabel> {
 	labels: Vec<InternedScheduleLabel>,
