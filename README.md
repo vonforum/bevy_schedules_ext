@@ -8,9 +8,11 @@ for Sets for system ordering.
 Nest one or more schedules:
 
 ```rust
+// Schedules can be added to other schedules
 app.add_schedules(Update, Child);
 app.add_schedules(Child, (GrandchildOne, GrandchildTwo));
 
+// Add systems to schedules directly, no appending `.in_set(...)` to everything!
 app.add_systems(Update, update_system);
 app.add_systems(Child, child_system);
 app.add_systems(GrandchildOne, grandchild_system_one);
