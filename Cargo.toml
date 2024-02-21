@@ -10,8 +10,8 @@ categories = ["game-development", "game-engines"]
 readme = "README.md"
 
 [dependencies]
-bevy_app = { git = "https://github.com/bevyengine/bevy.git", tag = "v0.13.0" }
-bevy_ecs = { git = "https://github.com/bevyengine/bevy.git", tag = "v0.13.0" }
+bevy_app = { git = "https://github.com/bevyengine/bevy.git", tag = "v0.13.0", default-features = false }
+bevy_ecs = { git = "https://github.com/bevyengine/bevy.git", tag = "v0.13.0", default-features = false }
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
