@@ -27,7 +27,7 @@ A full example is available in [examples/nested_schedules.rs](examples/nested_sc
 
 Since running a schedule requires exclusive world access, schedules can't run in parallel. The systems in them
 will follow all the regular Bevy rules for system execution order, but if you need to group systems and those groups
-to run in parallel, you should use Bevy's Sets instead.
+to potentially run in parallel, you should use Bevy's Sets instead.
 
 # License
 

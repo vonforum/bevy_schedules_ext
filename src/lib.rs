@@ -112,9 +112,13 @@ impl AppExt for App {
 			});
 		}
 
+		let config = children.into_configs();
+		config.iter().for_each(|&label| {
+			self.init_schedule(label);
+		});
+
 		self.world.resource_scope(
-			|_world: &mut World, mut container: Mut<SimpleScheduleContainer<P>>| {
-				let config = children.into_configs();
+			move |_world: &mut World, mut container: Mut<SimpleScheduleContainer<P>>| {
 				for label in config {
 					container.add(label);
 				}
