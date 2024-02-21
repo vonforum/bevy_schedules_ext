@@ -11,23 +11,23 @@ struct A;
 struct B;
 
 #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
-struct AA;
-
-#[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
-struct AB;
-
-#[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
 struct BA;
+
+#[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+enum AChildren {
+	A,
+	B,
+}
 
 fn main() {
 	let mut app = App::new();
 
-	// Create our schedule tree
-	app.add_schedules(Update, (A, B));
-	app.add_schedules(A, (AA, AB));
-	app.add_schedules(B, BA);
+	// - Create our schedule tree
+	app.add_schedules(Update, (A, B)); // Chained schedules
+	app.add_schedules(A, (AChildren::A, AChildren::B)); // Enums work also
+	app.add_schedules(B, BA); // No need for tuples if there's only one schedule
 
-	// Add example systems
+	// - Add example systems
 	app.add_systems(A, || {
 		println!("A");
 	});
@@ -36,11 +36,11 @@ fn main() {
 		println!("B");
 	});
 
-	app.add_systems(AA, || {
+	app.add_systems(AChildren::A, || {
 		println!("AA");
 	});
 
-	app.add_systems(AB, || {
+	app.add_systems(AChildren::B, || {
 		println!("AB");
 	});
 
@@ -48,10 +48,10 @@ fn main() {
 		println!("BA");
 	});
 
-	// Reuse a schedule
+	// - Reuse a schedule
 	app.add_schedules(Update, A);
 
-	/* Current schedule tree:
+	/* - Current schedule tree:
 	  Update - + - A - + - AA
 			   |       |
 			   +       + - AB
@@ -65,7 +65,7 @@ fn main() {
 
 	app.run();
 
-	/* Should print:
+	/* - Should print:
 	A
 	AA
 	AB
