@@ -10,11 +10,12 @@ categories = ["game-development", "game-engines"]
 readme = "README.md"
 
 [features]
-default = ["nesting"]
+default = ["app_ext", "nesting"]
+app_ext = ["dep:bevy_app"]
 nesting = []
 
 [dependencies]
-bevy_app = { version = "0.13.0", default-features = false }
+bevy_app = { version = "0.13.0", default-features = false, optional = true }
 bevy_ecs = { version = "0.13.0", default-features = false }
 
 [[example]]

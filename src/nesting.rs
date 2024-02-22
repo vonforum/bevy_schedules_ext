@@ -1,4 +1,3 @@
-use bevy_app::prelude::*;
 use bevy_ecs::{
 	all_tuples,
 	prelude::*,
@@ -76,70 +75,78 @@ macro_rules! impl_schedules_into_configs {
 
 all_tuples!(impl_schedules_into_configs, 1, 20, S, s);
 
-pub trait AppExt {
-	fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
-		&mut self,
-		parent: P,
-		children: S,
-	);
-}
+#[cfg(feature = "app_ext")]
+pub mod app_ext {
+	use bevy_app::prelude::*;
+	use bevy_ecs::prelude::*;
 
-impl AppExt for App {
-	/// Add subschedules to a given schedule in this app.
-	///
-	/// # Examples
-	///
-	/// ```
-	/// # use bevy_app::prelude::*;
-	/// # use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
-	/// #
-	/// # use bevy_mod_schedules::prelude::*;
-	/// #
-	/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
-	/// # struct Child;
-	/// #
-	/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
-	/// # struct GrandchildA;
-	/// #
-	/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
-	/// # struct GrandchildB;
-	/// #
-	/// # let mut app = App::new();
-	/// #
-	/// app.add_schedules(Update, Child);
-	/// app.add_schedules(Child, (GrandchildA, GrandchildB));
-	/// ```
-	fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
-		&mut self,
-		parent: P,
-		children: S,
-	) {
-		if !self.world.contains_resource::<SimpleScheduleContainer<P>>() {
-			self.world
-				.insert_resource(SimpleScheduleContainer::<P>::new());
+	use super::*;
 
-			self.add_systems(parent, move |world: &mut World| {
-				world.resource_scope(
-					|world: &mut World, container: Mut<SimpleScheduleContainer<P>>| {
-						for &label in &container {
-							world.run_schedule(label);
-						}
-					},
-				);
-			});
-		}
-
-		let config = children.into_configs();
-		config.iter().for_each(|&label| {
-			self.init_schedule(label);
-		});
-
-		self.world.resource_scope(
-			move |_world: &mut World, mut container: Mut<SimpleScheduleContainer<P>>| {
-				for label in config {
-					container.add(label);
-				}
-			},
+	pub trait AppExt {
+		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
+			&mut self,
+			parent: P,
+			children: S,
 		);
+	}
+
+	impl AppExt for App {
+		/// Add subschedules to a given schedule in this app.
+		///
+		/// # Examples
+		///
+		/// ```
+		/// # use bevy_app::prelude::*;
+		/// # use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
+		/// #
+		/// # use bevy_mod_schedules::prelude::*;
+		/// #
+		/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+		/// # struct Child;
+		/// #
+		/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+		/// # struct GrandchildA;
+		/// #
+		/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+		/// # struct GrandchildB;
+		/// #
+		/// # let mut app = App::new();
+		/// #
+		/// app.add_schedules(Update, Child);
+		/// app.add_schedules(Child, (GrandchildA, GrandchildB));
+		/// ```
+		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
+			&mut self,
+			parent: P,
+			children: S,
+		) {
+			if !self.world.contains_resource::<SimpleScheduleContainer<P>>() {
+				self.world
+					.insert_resource(SimpleScheduleContainer::<P>::new());
+
+				self.add_systems(parent, move |world: &mut World| {
+					world.resource_scope(
+						|world: &mut World, container: Mut<SimpleScheduleContainer<P>>| {
+							for &label in &container {
+								world.run_schedule(label);
+							}
+						},
+					);
+				});
+			}
+
+			let config = children.into_configs();
+			config.iter().for_each(|&label| {
+				self.init_schedule(label);
+			});
+
+			self.world.resource_scope(
+				move |_world: &mut World, mut container: Mut<SimpleScheduleContainer<P>>| {
+					for label in config {
+						container.add(label);
+					}
+				},
+			);
+		}
 	}
 }

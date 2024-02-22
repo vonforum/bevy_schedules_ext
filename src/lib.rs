@@ -4,6 +4,6 @@ pub mod nesting;
 pub mod prelude {
 	pub use bevy_ecs::schedule::ScheduleLabel;
 
-	#[cfg(feature = "nesting")]
-	pub use crate::nesting::AppExt as NestingAppExt;
+	#[cfg(all(feature = "nesting", feature = "app_ext"))]
+	pub use crate::nesting::app_ext::AppExt as NestingAppExt;
 }
