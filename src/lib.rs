@@ -21,7 +21,7 @@
 //! # struct GrandchildTwo;
 //! #
 //! # fn update_system() {}
-//! # fn child_system() {}{}
+//! # fn child_system() {}
 //! # fn grandchild_system_one() {}
 //! # fn grandchild_system_two() {}
 //! #

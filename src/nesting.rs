@@ -3,41 +3,28 @@ use bevy_ecs::{
 	prelude::*,
 	schedule::{InternedScheduleLabel, ScheduleLabel},
 };
+use bevy_utils::HashMap;
 
 /// A container of sub-schedules for a given schedule.
-/// Initialized by default when you add child schedules.
+/// Initialized by default for the parent schedule when you add child schedules.
 #[derive(Resource)]
-pub struct SimpleScheduleContainer<T: ScheduleLabel> {
-	labels: Vec<InternedScheduleLabel>,
+pub struct ScheduleContainer<T: ScheduleLabel> {
+	pub inner: HashMap<InternedScheduleLabel, Vec<InternedScheduleLabel>>,
 	phantom: std::marker::PhantomData<T>,
 }
 
-impl<T: ScheduleLabel> Default for SimpleScheduleContainer<T> {
+impl<T: ScheduleLabel> Default for ScheduleContainer<T> {
 	fn default() -> Self {
 		Self::new()
 	}
 }
 
-impl<T: ScheduleLabel> SimpleScheduleContainer<T> {
+impl<T: ScheduleLabel> ScheduleContainer<T> {
 	pub fn new() -> Self {
 		Self {
-			labels: Vec::new(),
+			inner: HashMap::default(),
 			phantom: std::marker::PhantomData,
 		}
-	}
-
-	/// Add a schedule to the container. Pushes the schedule to the end of the list.
-	pub fn add(&mut self, label: InternedScheduleLabel) {
-		self.labels.push(label);
-	}
-}
-
-impl<'a, T: ScheduleLabel> IntoIterator for &'a SimpleScheduleContainer<T> {
-	type Item = &'a InternedScheduleLabel;
-	type IntoIter = std::slice::Iter<'a, InternedScheduleLabel>;
-
-	fn into_iter(self) -> Self::IntoIter {
-		self.labels.iter()
 	}
 }
 
@@ -84,26 +71,27 @@ pub trait WorldExt {
 
 impl WorldExt for World {
 	fn init_schedule_container<T: ScheduleLabel>(&mut self, schedule: T) -> &mut Self {
-		if !self.contains_resource::<SimpleScheduleContainer<T>>() {
-			self.insert_resource(SimpleScheduleContainer::<T>::new());
+		let mut container = self.get_resource_or_insert_with(ScheduleContainer::<T>::default);
+		let schedule_label = schedule.intern();
+		if !container.inner.contains_key(&schedule_label) {
+			container.inner.insert(schedule_label, Vec::new());
 
-			let schedule = schedule.intern();
-			let mut schedules = self.resource_mut::<Schedules>();
+			let mut schedules = self.get_resource_or_insert_with(Schedules::default);
 
-			let system = |world: &mut World| {
+			let system = move |world: &mut World| {
 				world.resource_scope(
-					|world: &mut World, container: Mut<SimpleScheduleContainer<T>>| {
-						for &label in &container {
+					|world: &mut World, container: Mut<ScheduleContainer<T>>| {
+						for &label in container.inner.get(&schedule_label).unwrap() {
 							world.run_schedule(label);
 						}
 					},
 				);
 			};
 
-			if let Some(schedule) = schedules.get_mut(schedule) {
+			if let Some(schedule) = schedules.get_mut(schedule_label) {
 				schedule.add_systems(system);
 			} else {
-				let mut new_schedule = Schedule::new(schedule);
+				let mut new_schedule = Schedule::new(schedule_label);
 				new_schedule.add_systems(system);
 				schedules.insert(new_schedule);
 			}
@@ -159,6 +147,7 @@ pub mod app_ext {
 			parent: P,
 			children: S,
 		) {
+			let parent_label = parent.intern();
 			self.world.init_schedule_container(parent);
 
 			let config = children.into_configs();
@@ -167,9 +156,9 @@ pub mod app_ext {
 			});
 
 			self.world.resource_scope(
-				move |_world: &mut World, mut container: Mut<SimpleScheduleContainer<P>>| {
+				move |_world: &mut World, mut container: Mut<ScheduleContainer<P>>| {
 					for label in config {
-						container.add(label);
+						container.inner.get_mut(&parent_label).unwrap().push(label);
 					}
 				},
 			);
