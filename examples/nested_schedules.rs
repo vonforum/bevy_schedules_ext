@@ -3,7 +3,7 @@ use bevy_ecs::schedule::ScheduleLabel;
 
 use bevy_mod_schedules::prelude::*;
 
-// Define our schedules
+// - Define our schedules
 #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
 struct A;
 
