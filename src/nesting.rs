@@ -75,6 +75,45 @@ macro_rules! impl_schedules_into_configs {
 
 all_tuples!(impl_schedules_into_configs, 1, 20, S, s);
 
+/// Adds the [`init_schedule_container`](WorldExt::init_schedule_container) method to the `World` type.
+pub trait WorldExt {
+	/// Initialize a schedule container (to add subschedules to) for a given schedule.
+	/// Also adds a system to run the subschedules.
+	fn init_schedule_container<T: ScheduleLabel>(&mut self, schedule: T) -> &mut Self;
+}
+
+impl WorldExt for World {
+	fn init_schedule_container<T: ScheduleLabel>(&mut self, schedule: T) -> &mut Self {
+		if !self.contains_resource::<SimpleScheduleContainer<T>>() {
+			self.insert_resource(SimpleScheduleContainer::<T>::new());
+
+			let schedule = schedule.intern();
+			let mut schedules = self.resource_mut::<Schedules>();
+
+			let system = |world: &mut World| {
+				world.resource_scope(
+					|world: &mut World, container: Mut<SimpleScheduleContainer<T>>| {
+						for &label in &container {
+							world.run_schedule(label);
+						}
+					},
+				);
+			};
+
+			if let Some(schedule) = schedules.get_mut(schedule) {
+				schedule.add_systems(system);
+			} else {
+				let mut new_schedule = Schedule::new(schedule);
+				new_schedule.add_systems(system);
+				schedules.insert(new_schedule);
+			}
+		}
+
+		self
+	}
+}
+
+/// Adds the [`add_schedules`](App::add_schedules) method to the `App` type.
 #[cfg(feature = "app_ext")]
 pub mod app_ext {
 	use bevy_app::prelude::*;
@@ -83,14 +122,6 @@ pub mod app_ext {
 	use super::*;
 
 	pub trait AppExt {
-		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
-			&mut self,
-			parent: P,
-			children: S,
-		);
-	}
-
-	impl AppExt for App {
 		/// Add subschedules to a given schedule in this app.
 		///
 		/// # Examples
@@ -119,21 +150,16 @@ pub mod app_ext {
 			&mut self,
 			parent: P,
 			children: S,
-		) {
-			if !self.world.contains_resource::<SimpleScheduleContainer<P>>() {
-				self.world
-					.insert_resource(SimpleScheduleContainer::<P>::new());
+		);
+	}
 
-				self.add_systems(parent, move |world: &mut World| {
-					world.resource_scope(
-						|world: &mut World, container: Mut<SimpleScheduleContainer<P>>| {
-							for &label in &container {
-								world.run_schedule(label);
-							}
-						},
-					);
-				});
-			}
+	impl AppExt for App {
+		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
+			&mut self,
+			parent: P,
+			children: S,
+		) {
+			self.world.init_schedule_container(parent);
 
 			let config = children.into_configs();
 			config.iter().for_each(|&label| {
