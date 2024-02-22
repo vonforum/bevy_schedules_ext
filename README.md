@@ -58,6 +58,10 @@ Since running a schedule requires exclusive world access, schedules can't run in
 will follow all the regular Bevy rules for system execution order, but if you need to group systems and those groups
 to potentially run in parallel, you should use Bevy's Sets instead.
 
+Finally, if you want to use enums,
+they can only be used as leaf nodes currently, because currently nested schedules are stored tied to the type of the
+schedule, which would be same for different enum values.
+
 # Bevy compatibility
 
 | Bevy version | `bevy_mod_schedules` version |
