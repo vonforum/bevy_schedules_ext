@@ -5,6 +5,8 @@ use bevy_ecs::{
 	schedule::{InternedScheduleLabel, ScheduleLabel},
 };
 
+/// A container of sub-schedules for a given schedule.
+/// Initialized by default when you add child schedules.
 #[derive(Resource)]
 pub struct SimpleScheduleContainer<T: ScheduleLabel> {
 	labels: Vec<InternedScheduleLabel>,
@@ -25,6 +27,7 @@ impl<T: ScheduleLabel> SimpleScheduleContainer<T> {
 		}
 	}
 
+	/// Add a schedule to the container. Pushes the schedule to the end of the list.
 	pub fn add(&mut self, label: InternedScheduleLabel) {
 		self.labels.push(label);
 	}
@@ -39,16 +42,9 @@ impl<'a, T: ScheduleLabel> IntoIterator for &'a SimpleScheduleContainer<T> {
 	}
 }
 
+/// A trait for converting a schedule or a tuple of schedules into a list of schedule labels.
 pub trait SchedulesIntoConfigs<Marker> {
 	fn into_configs(self) -> Vec<InternedScheduleLabel>;
-}
-
-pub struct ScheduleConfigs;
-
-impl ScheduleConfigs {
-	fn new_from_schedule<T: ScheduleLabel>(schedule: T) -> InternedScheduleLabel {
-		schedule.intern()
-	}
 }
 
 impl<T> SchedulesIntoConfigs<()> for T
@@ -56,10 +52,11 @@ where
 	T: ScheduleLabel,
 {
 	fn into_configs(self) -> Vec<InternedScheduleLabel> {
-		vec![ScheduleConfigs::new_from_schedule(self)]
+		vec![self.intern()]
 	}
 }
 
+#[doc(hidden)]
 pub struct ScheduleConfigTupleMarker;
 
 macro_rules! impl_schedules_into_configs {
@@ -88,6 +85,30 @@ pub trait AppExt {
 }
 
 impl AppExt for App {
+	/// Add subschedules to a given schedule in this app.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// # use bevy_app::prelude::*;
+	/// # use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
+	/// #
+	/// # use bevy_mod_schedules::prelude::*;
+	/// #
+	/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+	/// # struct Child;
+	/// #
+	/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+	/// # struct GrandchildA;
+	/// #
+	/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+	/// # struct GrandchildB;
+	/// #
+	/// # let mut app = App::new();
+	/// #
+	/// app.add_schedules(Update, Child);
+	/// app.add_schedules(Child, (GrandchildA, GrandchildB));
+	/// ```
 	fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
 		&mut self,
 		parent: P,
