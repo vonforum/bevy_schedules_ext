@@ -9,14 +9,15 @@ keywords = ["bevy", "schedules", "plugin", "ecs"]
 categories = ["game-development", "game-engines"]
 readme = "README.md"
 
+[features]
+default = ["nesting"]
+nesting = []
+
 [dependencies]
 bevy_app = { version = "0.13.0", default-features = false }
 bevy_ecs = { version = "0.13.0", default-features = false }
 
-# Enable a small amount of optimization in debug mode
-[profile.dev]
-opt-level = 1
-
-# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-[profile.dev.package."*"]
-opt-level = 3
+[[example]]
+name = "nested_schedules"
+path = "examples/nested_schedules.rs"
+required-features = ["nesting"]
