@@ -1,5 +1,5 @@
 use bevy_app::prelude::*;
-use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
+use bevy_ecs::prelude::*;
 
 use bevy_mod_schedules::prelude::*;
 
@@ -62,7 +62,7 @@ fn main() {
 	AB
 	*/
 
-	println!("---");
+	println!("--- Vanilla bevy (might be slightly different): ---");
 
 	// Equivalent code using vanilla Bevy:
 	sets();
