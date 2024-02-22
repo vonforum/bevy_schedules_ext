@@ -1,11 +1,11 @@
 [package]
 name = "bevy_mod_schedules"
-version = "0.1.0"
+version = "0.13.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/vonforum/bevy_mod_schedules"
 description = "A Bevy plugin for expanding the use of schedules."
-keywords = ["bevy", "schedules", "plugin"]
+keywords = ["bevy", "schedules", "plugin", "ecs"]
 categories = ["game-development", "game-engines"]
 readme = "README.md"
 
