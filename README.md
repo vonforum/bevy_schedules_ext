@@ -7,6 +7,15 @@ for Sets for system ordering.
 
 Nest one or more schedules:
 
+<table>
+<tr>
+<td>With <code>bevy_mod_schedules</code></td>
+<td>Vanilla bevy</td>
+</tr>
+
+<tr>
+<td>
+
 ```rust
 // Schedules can be added to other schedules
 app.add_schedules(Update, Child);
@@ -18,6 +27,26 @@ app.add_systems(Child, child_system);
 app.add_systems(GrandchildOne, grandchild_system_one);
 app.add_systems(GrandchildTwo, grandchild_system_two);
 ```
+
+</td>
+
+<td>
+
+```rust
+// Sets configured manually, Update must be prepended to everything
+app.configure_sets(Update, Child);
+app.configure_sets(Update, (GrandchildOne, GrandchildTwo).chain().in_set(Child));
+
+// Adding systems to sets requires `.in_set(...)`
+app.add_systems(Update, update_system);
+app.add_systems(Update, child_system.in_set(Child));
+app.add_systems(Update, grandchild_system_one.in_set(GrandchildOne));
+app.add_systems(Update, grandchild_system_two.in_set(GrandchildTwo));
+```
+
+</td>
+<tr>
+</table>
 
 All systems will run in Bevy's update loop without having to manually call `run` on the custom schedules.
 
