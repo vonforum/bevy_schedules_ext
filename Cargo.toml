@@ -21,4 +21,9 @@ bevy_ecs = { version = "0.13.0", default-features = false }
 [[example]]
 name = "nested_schedules"
 path = "examples/nested_schedules.rs"
+required-features = ["nesting", "app_ext"]
+
+[[example]]
+name = "nested_schedules_no_app"
+path = "examples/nested_schedules_no_app.rs"
 required-features = ["nesting"]

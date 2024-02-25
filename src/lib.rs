@@ -47,4 +47,6 @@ pub mod prelude {
 
 	#[cfg(all(feature = "nesting", feature = "app_ext"))]
 	pub use crate::nesting::app_ext::AppExt as NestingAppExt;
+	#[cfg(feature = "nesting")]
+	pub use crate::nesting::ScheduleExt;
 }
