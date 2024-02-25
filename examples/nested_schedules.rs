@@ -35,7 +35,7 @@ fn main() {
 	app.add_systems(BA, ba);
 
 	// Reuse a schedule
-	app.add_schedules(Update, A);
+	app.add_schedules(B, A);
 
 	/* - Current schedule tree:
 	  Update - + - A - + - AA
@@ -43,10 +43,10 @@ fn main() {
 			   +       + - AB
 			   |
 			   + - B - + - BA
-			   |
-			   + - A - + - AA
-					   |
-					   + - AB
+			           |
+			           + - A - + - AA
+			        		   |
+				        	   + - AB
 	*/
 
 	app.run();
@@ -56,10 +56,10 @@ fn main() {
 	AA
 	AB
 	B
-	BA
 	A
 	AA
 	AB
+	BA
 	*/
 
 	println!("--- Vanilla bevy (might be slightly different): ---");
@@ -115,7 +115,7 @@ fn sets() {
 	app.add_systems(Update, ba.in_set(BASet));
 
 	// "Reuse" a set
-	app.configure_sets(Update, ASet2.after(BSet));
+	app.configure_sets(Update, ASet2.in_set(BSet));
 	app.configure_sets(
 		Update,
 		(AChildrenSet2::A, AChildrenSet2::B).chain().in_set(ASet2),

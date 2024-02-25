@@ -1,44 +1,25 @@
 use bevy_ecs::{
 	all_tuples,
 	prelude::*,
-	schedule::{InternedScheduleLabel, ScheduleLabel},
+	schedule::ScheduleLabel,
 };
-use bevy_utils::HashMap;
+use bevy_ecs::schedule::SystemConfigs;
 
-/// A container of sub-schedules for a given schedule.
-/// Initialized by default for the parent schedule when you add child schedules.
-#[derive(Resource)]
-pub struct ScheduleContainer<T: ScheduleLabel> {
-	pub inner: HashMap<InternedScheduleLabel, Vec<InternedScheduleLabel>>,
-	phantom: std::marker::PhantomData<T>,
+/// A trait for converting a schedule or a tuple of schedules into systems.
+pub trait SchedulesIntoSystems<Marker> where Self: Sized {
+	fn into_configs(self) -> SystemConfigs;
 }
 
-impl<T: ScheduleLabel> Default for ScheduleContainer<T> {
-	fn default() -> Self {
-		Self::new()
-	}
-}
-
-impl<T: ScheduleLabel> ScheduleContainer<T> {
-	pub fn new() -> Self {
-		Self {
-			inner: HashMap::default(),
-			phantom: std::marker::PhantomData,
-		}
-	}
-}
-
-/// A trait for converting a schedule or a tuple of schedules into a list of schedule labels.
-pub trait SchedulesIntoConfigs<Marker> {
-	fn into_configs(self) -> Vec<InternedScheduleLabel>;
-}
-
-impl<T> SchedulesIntoConfigs<()> for T
+impl<T> SchedulesIntoSystems<()> for T
 where
 	T: ScheduleLabel,
 {
-	fn into_configs(self) -> Vec<InternedScheduleLabel> {
-		vec![self.intern()]
+	fn into_configs(self) -> SystemConfigs {
+		let label = self.intern();
+
+		(move |world: &mut World| {
+			world.run_schedule(label);
+		}).into_configs()
 	}
 }
 
@@ -46,58 +27,41 @@ where
 pub struct ScheduleConfigTupleMarker;
 
 macro_rules! impl_schedules_into_configs {
-    ($(($sys: ident, $name: ident)),*) => {
-        impl<$($sys),*> SchedulesIntoConfigs<ScheduleConfigTupleMarker> for ($($sys,)*)
+    ($(($sys: ident, $name: ident, $label: ident)),*) => {
+        impl<$($sys),*> SchedulesIntoSystems<ScheduleConfigTupleMarker> for ($($sys,)*)
         where
             $($sys: ScheduleLabel),*
         {
             #[allow(non_snake_case)]
-            fn into_configs(self) -> Vec<InternedScheduleLabel> {
+            fn into_configs(self) -> SystemConfigs {
                 let ($($name,)*) = self;
-                vec![$($name.intern(),)*]
+				let ($($label,)*) = ($($name.intern(),)*);
+
+				($(move |world: &mut World| {
+					world.run_schedule($label);
+				}, )*).into_configs().chain()
             }
         }
     }
 }
 
-all_tuples!(impl_schedules_into_configs, 1, 20, S, s);
+all_tuples!(impl_schedules_into_configs, 1, 20, S, s, l);
 
-/// Adds the [`init_schedule_container`](WorldExt::init_schedule_container) method to the `World` type.
-pub trait WorldExt {
-	/// Initialize a schedule container (to add subschedules to) for a given schedule.
-	/// Also adds a system to run the subschedules.
-	fn init_schedule_container<T: ScheduleLabel>(&mut self, schedule: T) -> &mut Self;
+/// Adds the [`add_schedules`](ScheduleExt::add_schedules) method to the `Schedule` type.
+pub trait ScheduleExt {
+	/// Add subschedules to this schedule.
+	fn add_schedules<Marker, S: SchedulesIntoSystems<Marker>>(
+		&mut self,
+		children: S,
+	);
 }
 
-impl WorldExt for World {
-	fn init_schedule_container<T: ScheduleLabel>(&mut self, schedule: T) -> &mut Self {
-		let mut container = self.get_resource_or_insert_with(ScheduleContainer::<T>::default);
-		let schedule_label = schedule.intern();
-		if !container.inner.contains_key(&schedule_label) {
-			container.inner.insert(schedule_label, Vec::new());
-
-			let mut schedules = self.get_resource_or_insert_with(Schedules::default);
-
-			let system = move |world: &mut World| {
-				world.resource_scope(
-					|world: &mut World, container: Mut<ScheduleContainer<T>>| {
-						for &label in container.inner.get(&schedule_label).unwrap() {
-							world.run_schedule(label);
-						}
-					},
-				);
-			};
-
-			if let Some(schedule) = schedules.get_mut(schedule_label) {
-				schedule.add_systems(system);
-			} else {
-				let mut new_schedule = Schedule::new(schedule_label);
-				new_schedule.add_systems(system);
-				schedules.insert(new_schedule);
-			}
-		}
-
-		self
+impl ScheduleExt for Schedule {
+	fn add_schedules<Marker, S: SchedulesIntoSystems<Marker>>(
+		&mut self,
+		children: S,
+	) {
+		self.add_systems(children.into_configs());
 	}
 }
 
@@ -134,34 +98,31 @@ pub mod app_ext {
 		/// app.add_schedules(Update, Child);
 		/// app.add_schedules(Child, (GrandchildA, GrandchildB));
 		/// ```
-		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
+		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoSystems<Marker>>(
 			&mut self,
 			parent: P,
 			children: S,
-		);
+		) -> &mut Self;
 	}
 
 	impl AppExt for App {
-		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
+		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoSystems<Marker>>(
 			&mut self,
 			parent: P,
 			children: S,
-		) {
-			let parent_label = parent.intern();
-			self.world.init_schedule_container(parent);
+		) -> &mut Self {
+			let label = parent.intern();
+			let mut schedules = self.world.resource_mut::<Schedules>();
 
-			let config = children.into_configs();
-			config.iter().for_each(|&label| {
-				self.init_schedule(label);
-			});
+			if let Some(schedule) = schedules.get_mut(label) {
+				schedule.add_schedules(children);
+			} else {
+				let mut new_schedule = Schedule::new(label);
+				new_schedule.add_schedules(children);
+				schedules.insert(new_schedule);
+			}
 
-			self.world.resource_scope(
-				move |_world: &mut World, mut container: Mut<ScheduleContainer<P>>| {
-					for label in config {
-						container.inner.get_mut(&parent_label).unwrap().push(label);
-					}
-				},
-			);
+			self
 		}
 	}
 }
