@@ -6,10 +6,10 @@
 //! ## Example
 //!
 //! ```rust
-//!# use bevy_app::prelude::*;
+//! # use bevy_app::prelude::*;
 //! # use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
 //! #
-//! # use bevy_mod_schedules::prelude::*;
+//! # use bevy_schedules_ext::prelude::*;
 //! #
 //! # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
 //! # struct Child;

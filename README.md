@@ -9,7 +9,7 @@ Nest one or more schedules:
 
 <table>
 <tr>
-<td>With <code>bevy_mod_schedules</code></td>
+<td>With <code>bevy_schedules_ext</code></td>
 <td>Vanilla bevy</td>
 </tr>
 
@@ -60,7 +60,7 @@ to potentially run in parallel, you should use Bevy's Sets instead.
 
 # Bevy compatibility
 
-| Bevy version | `bevy_mod_schedules` version |
+| Bevy version | `bevy_schedules_ext` version |
 |-------------:|:-----------------------------|
 |       `0.13` | `0.13.x`                     |
 

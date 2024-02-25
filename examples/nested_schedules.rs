@@ -1,7 +1,7 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 
-use bevy_mod_schedules::prelude::*;
+use bevy_schedules_ext::prelude::*;
 
 // Define our schedules
 #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
@@ -24,7 +24,7 @@ fn main() {
 
 	// Create our schedule tree
 	app.add_schedules(Update, (A, B)); // Chained schedules
-	app.add_schedules(A, (AChildren::A, AChildren::B)); // Enums work also, but same type enums can't be descendants of each other
+	app.add_schedules(A, (AChildren::A, AChildren::B)); // Enums work also
 	app.add_schedules(B, BA); // No need for tuples if there's only one schedule
 
 	// Add example systems

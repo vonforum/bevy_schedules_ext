@@ -1,9 +1,9 @@
 [package]
-name = "bevy_mod_schedules"
+name = "bevy_schedules_ext"
 version = "0.13.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/vonforum/bevy_mod_schedules"
+repository = "https://github.com/vonforum/bevy_schedules_ext"
 description = "A Bevy plugin for expanding the use of schedules."
 keywords = ["bevy", "schedules", "plugin", "ecs"]
 categories = ["game-development", "game-engines"]
