@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::*;
 
+use bevy_schedules_ext::nesting::SchedulesIntoConfigs;
 use bevy_schedules_ext::prelude::*;
 
 // Define our schedules
@@ -24,8 +25,8 @@ fn main() {
 	let mut child_b = Schedule::new(AChildren::B);
 
 	// Create our schedule tree
-	update.add_schedules(parent_a.label());
-	parent_a.add_schedules((child_a.label(), child_b.label()));
+	update.add_systems(parent_a.label().into_systems());
+	parent_a.add_systems((child_a.label(), child_b.label()).into_systems());
 
 	/* - Current schedule tree:
 	  Update - + - A - + - AA

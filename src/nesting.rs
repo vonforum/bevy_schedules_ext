@@ -6,16 +6,16 @@ use bevy_ecs::{
 use bevy_ecs::schedule::{InternedScheduleLabel, SystemConfigs};
 
 /// A trait for converting a schedule or a tuple of schedules into systems.
-pub trait SchedulesIntoSystems<Marker> where Self: Sized {
-	fn into_configs(self) -> SystemConfigs;
+pub trait SchedulesIntoConfigs<Marker> where Self: Sized {
+	fn into_systems(self) -> SystemConfigs;
 	fn into_vec(&self) -> Vec<InternedScheduleLabel>;
 }
 
-impl<T> SchedulesIntoSystems<()> for T
+impl<T> SchedulesIntoConfigs<()> for T
 where
 	T: ScheduleLabel,
 {
-	fn into_configs(self) -> SystemConfigs {
+	fn into_systems(self) -> SystemConfigs {
 		let label = self.intern();
 
 		(move |world: &mut World| {
@@ -33,12 +33,12 @@ pub struct ScheduleConfigTupleMarker;
 
 macro_rules! impl_schedules_into_configs {
     ($(($sys: ident, $name: ident, $label: ident)),*) => {
-        impl<$($sys),*> SchedulesIntoSystems<ScheduleConfigTupleMarker> for ($($sys,)*)
+        impl<$($sys),*> SchedulesIntoConfigs<ScheduleConfigTupleMarker> for ($($sys,)*)
         where
             $($sys: ScheduleLabel),*
         {
             #[allow(non_snake_case)]
-            fn into_configs(self) -> SystemConfigs {
+            fn into_systems(self) -> SystemConfigs {
                 let ($($name,)*) = self;
 				let ($($label,)*) = ($($name.intern(),)*);
 
@@ -57,24 +57,6 @@ macro_rules! impl_schedules_into_configs {
 }
 
 all_tuples!(impl_schedules_into_configs, 1, 20, S, s, l);
-
-/// Adds the [`add_schedules`](ScheduleExt::add_schedules) method to the `Schedule` type.
-pub trait ScheduleExt {
-	/// Add subschedules to this schedule.
-	fn add_schedules<Marker, S: SchedulesIntoSystems<Marker>>(
-		&mut self,
-		children: S,
-	);
-}
-
-impl ScheduleExt for Schedule {
-	fn add_schedules<Marker, S: SchedulesIntoSystems<Marker>>(
-		&mut self,
-		children: S,
-	) {
-		self.add_systems(children.into_configs());
-	}
-}
 
 /// Adds the [`add_schedules`](App::add_schedules) method to the `App` type.
 #[cfg(feature = "app_ext")]
@@ -109,7 +91,7 @@ pub mod app_ext {
 		/// app.add_schedules(Update, Child);
 		/// app.add_schedules(Child, (GrandchildA, GrandchildB));
 		/// ```
-		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoSystems<Marker>>(
+		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
 			&mut self,
 			parent: P,
 			children: S,
@@ -117,7 +99,7 @@ pub mod app_ext {
 	}
 
 	impl AppExt for App {
-		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoSystems<Marker>>(
+		fn add_schedules<Marker, P: ScheduleLabel, S: SchedulesIntoConfigs<Marker>>(
 			&mut self,
 			parent: P,
 			children: S,
@@ -129,13 +111,13 @@ pub mod app_ext {
 			let label = parent.intern();
 			let mut schedules = self.world.resource_mut::<Schedules>();
 
-			if let Some(schedule) = schedules.get_mut(label) {
-				schedule.add_schedules(children);
-			} else {
-				let mut new_schedule = Schedule::new(label);
-				new_schedule.add_schedules(children);
-				schedules.insert(new_schedule);
-			}
+				if let Some(schedule) = schedules.get_mut(label) {
+					schedule.add_systems(children.into_systems());
+				} else {
+					let mut new_schedule = Schedule::new(label);
+					new_schedule.add_systems(children.into_systems());
+					schedules.insert(new_schedule);
+				}
 
 			self
 		}
