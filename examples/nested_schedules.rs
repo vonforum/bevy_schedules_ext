@@ -1,4 +1,5 @@
 use bevy_app::prelude::*;
+#[allow(unused_imports)]
 use bevy_ecs::prelude::*;
 
 use bevy_schedules_ext::prelude::*;
@@ -17,6 +18,7 @@ struct BA;
 enum AChildren {
 	A,
 	B,
+	C,
 }
 
 fn main() {
@@ -25,6 +27,7 @@ fn main() {
 	// Create our schedule tree
 	app.add_schedules(Update, (A, B)); // Chained schedules
 	app.add_schedules(A, (AChildren::A, AChildren::B)); // Enums work also
+	app.add_schedules(AChildren::A, AChildren::C); // Same type children
 	app.add_schedules(B, BA); // No need for tuples if there's only one schedule
 
 	// Reuse a schedule

@@ -3,11 +3,12 @@ use bevy_ecs::{
 	prelude::*,
 	schedule::ScheduleLabel,
 };
-use bevy_ecs::schedule::SystemConfigs;
+use bevy_ecs::schedule::{InternedScheduleLabel, SystemConfigs};
 
 /// A trait for converting a schedule or a tuple of schedules into systems.
 pub trait SchedulesIntoSystems<Marker> where Self: Sized {
 	fn into_configs(self) -> SystemConfigs;
+	fn into_vec(&self) -> Vec<InternedScheduleLabel>;
 }
 
 impl<T> SchedulesIntoSystems<()> for T
@@ -20,6 +21,10 @@ where
 		(move |world: &mut World| {
 			world.run_schedule(label);
 		}).into_configs()
+	}
+
+	fn into_vec(&self) -> Vec<InternedScheduleLabel> {
+		vec![self.intern()]
 	}
 }
 
@@ -41,6 +46,12 @@ macro_rules! impl_schedules_into_configs {
 					world.run_schedule($label);
 				}, )*).into_configs().chain()
             }
+
+			#[allow(non_snake_case)]
+			fn into_vec(&self) -> Vec<InternedScheduleLabel> {
+				let ($($name,)*) = self;
+				vec![$($name.intern(),)*]
+			}
         }
     }
 }
@@ -111,6 +122,10 @@ pub mod app_ext {
 			parent: P,
 			children: S,
 		) -> &mut Self {
+			children.into_vec().iter().for_each(|&label| {
+				self.init_schedule(label);
+			});
+
 			let label = parent.intern();
 			let mut schedules = self.world.resource_mut::<Schedules>();
 
