@@ -42,6 +42,18 @@
 #[cfg(feature = "nesting")]
 pub mod nesting;
 
+#[cfg(feature = "containers")]
+pub mod containers {
+	use bevy_ecs::prelude::Resource;
+	use bevy_ecs::schedule::InternedScheduleLabel;
+	use bevy_utils::HashMap;
+
+	#[derive(Default, Resource)]
+	pub struct ScheduleContainers {
+		pub inner: HashMap<InternedScheduleLabel, Vec<InternedScheduleLabel>>,
+	}
+}
+
 pub mod prelude {
 	pub use bevy_ecs::schedule::ScheduleLabel;
 

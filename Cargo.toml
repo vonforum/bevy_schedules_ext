@@ -12,11 +12,14 @@ readme = "README.md"
 [features]
 default = ["app_ext", "nesting"]
 app_ext = ["dep:bevy_app"]
+containers = ["dep:bevy_utils"]
 nesting = []
+nesting_containers = ["containers", "nesting"]
 
 [dependencies]
 bevy_app = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
 bevy_ecs = { git = "https://github.com/bevyengine/bevy.git", default-features = false }
+bevy_utils = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
 
 [[example]]
 name = "nested_schedules"
