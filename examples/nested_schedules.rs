@@ -27,13 +27,6 @@ fn main() {
 	app.add_schedules(A, (AChildren::A, AChildren::B)); // Enums work also
 	app.add_schedules(B, BA); // No need for tuples if there's only one schedule
 
-	// Add example systems
-	app.add_systems(A, a);
-	app.add_systems(B, b);
-	app.add_systems(AChildren::A, aa);
-	app.add_systems(AChildren::B, ab);
-	app.add_systems(BA, ba);
-
 	// Reuse a schedule
 	app.add_schedules(B, A);
 
@@ -44,31 +37,21 @@ fn main() {
 			   |
 			   + - B - + - BA
 			           |
-			           + - A - + - AA
-			        		   |
-				        	   + - AB
+			           + - A - ..
 	*/
+
+	// Add example systems
+	app.add_systems(A, a);
+	app.add_systems(B, b);
+	app.add_systems(AChildren::A, aa);
+	app.add_systems(AChildren::B, ab);
+	app.add_systems(BA, ba);
 
 	app.run();
 
-	/* - Should print:
-	A
-	AA
-	AB
-	B
-	A
-	AA
-	AB
-	BA
-	*/
-
-	println!("--- Vanilla bevy (might be slightly different): ---");
-
-	// Equivalent code using vanilla Bevy:
+	// Equivalent code using vanilla Bevy follows:
 	sets();
 }
-
-// - Equivalent code in vanilla Bevy
 
 // Define sets
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
@@ -97,6 +80,8 @@ enum AChildrenSet2 {
 }
 
 fn sets() {
+	println!("--- Vanilla bevy (might be slightly different): ---");
+
 	let mut app = App::new();
 
 	// Create set tree

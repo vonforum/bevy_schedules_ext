@@ -27,6 +27,12 @@ fn main() {
 	update.add_schedules(parent_a.label());
 	parent_a.add_schedules((child_a.label(), child_b.label()));
 
+	/* - Current schedule tree:
+	  Update - + - A - + - AA
+			           |
+			           + - AB
+	*/
+
 	// Add example systems
 	parent_a.add_systems(a);
 	child_a.add_systems(aa);
@@ -37,20 +43,11 @@ fn main() {
 	world.add_schedule(child_a);
 	world.add_schedule(child_b);
 
-	/* - Current schedule tree:
-	  Update - + - A - + - AA
-			           |
-			           + - AB
-	*/
-
+	// Run the parent schedule
 	update.run(&mut world);
-
-	/* - Should print:
-	A
-	AA
-	AB
-	*/
 }
+
+// Example systems
 
 fn a() {
 	println!("A");
