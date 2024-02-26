@@ -1,7 +1,9 @@
 # Bevy Schedules, improved
 
-Adds functionality to Bevy's existing Schedules to allow for nesting and using schedules as a replacement
-for Sets for system ordering.
+Adds functionality to Bevy's existing Schedules, allowing nesting and using schedules as a replacement
+for Sets for system grouping and ordering.
+
+Extends Bevy's existing structures, no `.add_plugin` or managing new Resources.
 
 ## Usage
 
