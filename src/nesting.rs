@@ -148,7 +148,8 @@ pub mod app_ext {
 						});
 
 						// Add the children back to the container
-						world.resource_mut::<NestedSchedulesContainer>().inner.insert(label, children);
+						// Unchecked, because we just removed it before
+						world.resource_mut::<NestedSchedulesContainer>().inner.insert_unique_unchecked(label, children);
 					};
 
 					// Add the system to the parent schedule
