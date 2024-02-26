@@ -48,68 +48,6 @@ fn main() {
 	app.add_systems(BA, ba);
 
 	app.run();
-
-	// Equivalent code using vanilla Bevy follows:
-	sets();
-}
-
-// Define sets
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-struct ASet;
-
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-struct BSet;
-
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-struct BASet;
-
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-enum AChildrenSet {
-	A,
-	B,
-}
-
-// Can't reuse sets, so we need to define them again
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-struct ASet2;
-
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-enum AChildrenSet2 {
-	A,
-	B,
-}
-
-fn sets() {
-	println!("--- Vanilla bevy (might be slightly different): ---");
-
-	let mut app = App::new();
-
-	// Create set tree
-	app.configure_sets(Update, (ASet, BSet).chain());
-	app.configure_sets(
-		Update,
-		(AChildrenSet::A, AChildrenSet::B).chain().in_set(ASet),
-	);
-	app.configure_sets(Update, BASet.in_set(BSet));
-
-	// Add example systems
-	app.add_systems(Update, a.in_set(ASet));
-	app.add_systems(Update, b.in_set(BSet));
-	app.add_systems(Update, aa.in_set(AChildrenSet::A));
-	app.add_systems(Update, ab.in_set(AChildrenSet::B));
-	app.add_systems(Update, ba.in_set(BASet));
-
-	// "Reuse" a set
-	app.configure_sets(Update, ASet2.in_set(BSet));
-	app.configure_sets(
-		Update,
-		(AChildrenSet2::A, AChildrenSet2::B).chain().in_set(ASet2),
-	);
-	app.add_systems(Update, a.in_set(ASet2));
-	app.add_systems(Update, aa.in_set(AChildrenSet2::A));
-	app.add_systems(Update, ab.in_set(AChildrenSet2::B));
-
-	app.run();
 }
 
 // - Example systems
