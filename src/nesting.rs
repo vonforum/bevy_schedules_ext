@@ -127,8 +127,9 @@ pub mod app_ext {
 			#[cfg(feature = "nesting_containers")]
 			{
 				use crate::containers::ScheduleContainers;
+				type NestedSchedulesContainer = ScheduleContainers<Vec<InternedScheduleLabel>>;
 
-				let mut container = self.world.get_resource_or_insert_with(ScheduleContainers::default);
+				let mut container = self.world.get_resource_or_insert_with(NestedSchedulesContainer::default);
 
 				if !container.inner.contains_key(&label) {
 					container.inner.insert(label, children.into_vec());
@@ -137,7 +138,7 @@ pub mod app_ext {
 					let system = move |world: &mut World| {
 						// Remove the children from the container. This is so we don't break ownership rules.
 						let children = {
-							let mut container = world.resource_mut::<ScheduleContainers>();
+							let mut container = world.resource_mut::<NestedSchedulesContainer>();
 							container.inner.remove(&label).unwrap()
 						};
 
@@ -147,7 +148,7 @@ pub mod app_ext {
 						});
 
 						// Add the children back to the container
-						world.resource_mut::<ScheduleContainers>().inner.insert(label, children);
+						world.resource_mut::<NestedSchedulesContainer>().inner.insert(label, children);
 					};
 
 					// Add the system to the parent schedule

@@ -49,8 +49,8 @@ pub mod containers {
 	use bevy_utils::HashMap;
 
 	#[derive(Default, Resource)]
-	pub struct ScheduleContainers {
-		pub inner: HashMap<InternedScheduleLabel, Vec<InternedScheduleLabel>>,
+	pub struct ScheduleContainers<S> {
+		pub inner: HashMap<InternedScheduleLabel, S>,
 	}
 }
 
