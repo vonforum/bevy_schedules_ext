@@ -64,7 +64,7 @@ to potentially run in parallel, you should use Bevy's Sets instead.
 
 | Bevy version | `bevy_schedules_ext` version |
 |-------------:|:-----------------------------|
-|       `main` | [`bevy_main` branch][1]      |
+| `0.14.0-dev` | [`bevy_main` branch][1]      |
 |       `0.13` | `0.13.x`                     |
 
 # License
