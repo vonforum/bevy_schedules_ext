@@ -5,7 +5,10 @@ use bevy_ecs::{
 };
 
 /// A trait for converting a schedule or a tuple of schedules into different types
-pub trait SchedulesIntoConfigs<Marker> where Self: Sized {
+pub trait SchedulesIntoConfigs<Marker>
+where
+	Self: Sized,
+{
 	fn into_systems(self) -> SystemConfigs;
 	fn into_vec(&self) -> Vec<InternedScheduleLabel>;
 }
@@ -19,7 +22,8 @@ where
 
 		(move |world: &mut World| {
 			world.run_schedule(label);
-		}).into_configs()
+		})
+		.into_configs()
 	}
 
 	fn into_vec(&self) -> Vec<InternedScheduleLabel> {
@@ -75,7 +79,10 @@ pub fn create_run_children_system(label: InternedScheduleLabel) -> impl FnMut(&m
 
 		// Add the children back to the container
 		// Unchecked, because we just removed it before
-		world.resource_mut::<Containers>().inner.insert_unique_unchecked(label, children);
+		world
+			.resource_mut::<Containers>()
+			.inner
+			.insert_unique_unchecked(label, children);
 	}
 }
 
@@ -150,13 +157,18 @@ pub mod app_ext {
 
 				type Inner = Vec<InternedScheduleLabel>;
 
-				self.world.init_schedule_container::<Inner>(label);    // Initialize the container if not yet present
-				if self.world.insert_schedule_container_system_marker::<Inner>(label) {    // If the system to run the child schedules isn't present yet, add it
+				self.world.init_schedule_container::<Inner>(label); // Initialize the container if not yet present
+				if self
+					.world
+					.insert_schedule_container_system_marker::<Inner>(label)
+				{
+					// If the system to run the child schedules isn't present yet, add it
 					self.add_systems(label, create_run_children_system(label));
 				}
 
 				// Add the children to the container
-				self.world.resource_mut::<ScheduleContainers<Inner>>()
+				self.world
+					.resource_mut::<ScheduleContainers<Inner>>()
 					.inner
 					.get_mut(&label)
 					.unwrap()

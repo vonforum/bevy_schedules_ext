@@ -1,7 +1,6 @@
 use bevy_app::prelude::*;
 #[allow(unused_imports)]
 use bevy_ecs::prelude::*;
-
 use bevy_schedules_ext::prelude::*;
 
 // Define our schedules
@@ -39,8 +38,8 @@ fn main() {
 			   +       + - AB
 			   |
 			   + - B - + - BA
-			           |
-			           + - A - ..
+					   |
+					   + - A - ..
 	*/
 
 	// Add example systems
