@@ -10,7 +10,7 @@ categories = ["game-development", "game-engines"]
 readme = "README.md"
 
 [features]
-default = ["app_ext", "nesting"]
+default = ["app_ext", "containers", "nesting", "nesting_containers"]
 app_ext = ["dep:bevy_app"]
 containers = ["dep:bevy_utils"]
 nesting = []
