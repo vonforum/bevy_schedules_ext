@@ -43,20 +43,13 @@
 pub mod nesting;
 
 #[cfg(feature = "containers")]
-pub mod containers {
-	use bevy_ecs::prelude::Resource;
-	use bevy_ecs::schedule::InternedScheduleLabel;
-	use bevy_utils::HashMap;
-
-	#[derive(Default, Resource)]
-	pub struct ScheduleContainers<S> {
-		pub inner: HashMap<InternedScheduleLabel, S>,
-	}
-}
+pub mod containers;
 
 pub mod prelude {
 	pub use bevy_ecs::schedule::ScheduleLabel;
 
+	#[cfg(feature = "containers")]
+	pub use crate::containers::WorldExt as ContainersWorldExt;
 	#[cfg(all(feature = "nesting", feature = "app_ext"))]
 	pub use crate::nesting::app_ext::AppExt as NestingAppExt;
 }
