@@ -1,12 +1,14 @@
 use bevy_ecs::{
 	all_tuples,
 	prelude::*,
-	schedule::ScheduleLabel,
+	schedule::{InternedScheduleLabel, ScheduleLabel, SystemConfigs},
 };
-use bevy_ecs::schedule::{InternedScheduleLabel, SystemConfigs};
 
-/// A trait for converting a schedule or a tuple of schedules into systems.
-pub trait SchedulesIntoConfigs<Marker> where Self: Sized {
+/// A trait for converting a schedule or a tuple of schedules into different types
+pub trait SchedulesIntoConfigs<Marker>
+where
+	Self: Sized,
+{
 	fn into_systems(self) -> SystemConfigs;
 	fn into_vec(&self) -> Vec<InternedScheduleLabel>;
 }
@@ -20,7 +22,8 @@ where
 
 		(move |world: &mut World| {
 			world.run_schedule(label);
-		}).into_configs()
+		})
+		.into_configs()
 	}
 
 	fn into_vec(&self) -> Vec<InternedScheduleLabel> {
@@ -58,11 +61,35 @@ macro_rules! impl_schedules_into_configs {
 
 all_tuples!(impl_schedules_into_configs, 1, 20, S, s, l);
 
+/// Helper to create a system that runs the children of a schedule.
+#[cfg(feature = "nesting_containers")]
+pub fn create_run_children_system(label: InternedScheduleLabel) -> impl FnMut(&mut World) {
+	type Containers = crate::containers::ScheduleContainers<Vec<InternedScheduleLabel>>;
+	move |world: &mut World| {
+		// Remove the children from the container. This is so we don't break ownership rules.
+		let children = {
+			let mut container = world.resource_mut::<Containers>();
+			container.inner.remove(&label).unwrap()
+		};
+
+		// Run the children
+		children.iter().for_each(|&label| {
+			world.run_schedule(label);
+		});
+
+		// Add the children back to the container
+		// Unchecked, because we just removed it before
+		world
+			.resource_mut::<Containers>()
+			.inner
+			.insert_unique_unchecked(label, children);
+	}
+}
+
 /// Adds the [`add_schedules`](App::add_schedules) method to the `App` type.
 #[cfg(feature = "app_ext")]
 pub mod app_ext {
 	use bevy_app::prelude::*;
-	use bevy_ecs::prelude::*;
 
 	use super::*;
 
@@ -126,43 +153,26 @@ pub mod app_ext {
 
 			#[cfg(feature = "nesting_containers")]
 			{
-				use crate::containers::ScheduleContainers;
-				type NestedSchedulesContainer = ScheduleContainers<Vec<InternedScheduleLabel>>;
+				use crate::containers::*;
 
-				let mut container = self.world.get_resource_or_insert_with(NestedSchedulesContainer::default);
+				type Inner = Vec<InternedScheduleLabel>;
 
-				if !container.inner.contains_key(&label) {
-					container.inner.insert(label, children.into_vec());
-
-					// System that runs the child schedules
-					let system = move |world: &mut World| {
-						// Remove the children from the container. This is so we don't break ownership rules.
-						let children = {
-							let mut container = world.resource_mut::<NestedSchedulesContainer>();
-							container.inner.remove(&label).unwrap()
-						};
-
-						// Run the children
-						children.iter().for_each(|&label| {
-							world.run_schedule(label);
-						});
-
-						// Add the children back to the container
-						world.resource_mut::<NestedSchedulesContainer>().inner.insert(label, children);
-					};
-
-					// Add the system to the parent schedule
-					let mut schedules = self.world.resource_mut::<Schedules>();
-					if let Some(schedule) = schedules.get_mut(label) {
-						schedule.add_systems(system);
-					} else {
-						let mut new_schedule = Schedule::new(label);
-						new_schedule.add_systems(system);
-						schedules.insert(new_schedule);
-					}
-				} else {
-					container.inner.get_mut(&label).unwrap().extend(children.into_vec());
+				self.world.init_schedule_container::<Inner>(label); // Initialize the container if not yet present
+				if self
+					.world
+					.insert_schedule_container_system_marker::<Inner>(label)
+				{
+					// If the system to run the child schedules isn't present yet, add it
+					self.add_systems(label, create_run_children_system(label));
 				}
+
+				// Add the children to the container
+				self.world
+					.resource_mut::<ScheduleContainers<Inner>>()
+					.inner
+					.get_mut(&label)
+					.unwrap()
+					.extend(children.into_vec());
 			}
 
 			self

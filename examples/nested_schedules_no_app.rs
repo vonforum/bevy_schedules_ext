@@ -1,7 +1,8 @@
 use bevy_ecs::prelude::*;
-
-use bevy_schedules_ext::nesting::SchedulesIntoConfigs;
-use bevy_schedules_ext::prelude::*;
+use bevy_schedules_ext::{
+	nesting::{create_run_children_system, SchedulesIntoConfigs},
+	prelude::*,
+};
 
 // Define our schedules
 #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
@@ -25,13 +26,20 @@ fn main() {
 	let mut child_b = Schedule::new(AChildren::B);
 
 	// Create our schedule tree
-	update.add_systems(parent_a.label().into_systems());
+
+	// With containers
+	let update_label = update.label();
+	let update_children = vec![parent_a.label()];
+	world.insert_schedule_container(update_label, update_children); // Add the container
+	update.add_systems(create_run_children_system(update_label)); // Add the system to run the child schedules
+
+	// As systems (no containers)
 	parent_a.add_systems((child_a.label(), child_b.label()).into_systems());
 
 	/* - Current schedule tree:
 	  Update - + - A - + - AA
-			           |
-			           + - AB
+					   |
+					   + - AB
 	*/
 
 	// Add example systems

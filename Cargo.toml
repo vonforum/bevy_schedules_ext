@@ -10,7 +10,7 @@ categories = ["game-development", "game-engines"]
 readme = "README.md"
 
 [features]
-default = ["app_ext", "nesting"]
+default = ["app_ext", "containers", "nesting", "nesting_containers"]
 app_ext = ["dep:bevy_app"]
 containers = ["dep:bevy_utils"]
 nesting = []
@@ -29,4 +29,4 @@ required-features = ["nesting", "app_ext"]
 [[example]]
 name = "nested_schedules_no_app"
 path = "examples/nested_schedules_no_app.rs"
-required-features = ["nesting"]
+required-features = ["nesting", "nesting_containers"]
