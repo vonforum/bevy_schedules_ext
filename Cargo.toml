@@ -1,6 +1,6 @@
 [package]
 name = "bevy_schedules_ext"
-version = "0.13.1"
+version = "0.14.0-dev"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/vonforum/bevy_schedules_ext"
@@ -10,16 +10,16 @@ categories = ["game-development", "game-engines"]
 readme = "README.md"
 
 [features]
-default = ["app_ext", "containers", "nesting", "nesting_containers"]
+default = ["app_ext", "nesting_containers"]
 app_ext = ["dep:bevy_app"]
 containers = ["dep:bevy_utils"]
 nesting = []
 nesting_containers = ["containers", "nesting"]
 
 [dependencies]
-bevy_app = { version = "0.13.0", default-features = false, optional = true }
-bevy_ecs = { version = "0.13.0", default-features = false }
-bevy_utils = { version = "0.13.0", default-features = false, optional = true }
+bevy_app = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
+bevy_ecs = { git = "https://github.com/bevyengine/bevy.git", default-features = false }
+bevy_utils = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
 
 [[example]]
 name = "nested_schedules"
@@ -29,4 +29,4 @@ required-features = ["nesting", "app_ext"]
 [[example]]
 name = "nested_schedules_no_app"
 path = "examples/nested_schedules_no_app.rs"
-required-features = ["nesting", "nesting_containers"]
+required-features = ["nesting"]
