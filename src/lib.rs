@@ -45,6 +45,9 @@ pub mod containers;
 #[cfg(feature = "nesting")]
 pub mod nesting;
 
+#[cfg(feature = "states")]
+pub mod states;
+
 pub mod prelude {
 	pub use bevy_ecs::schedule::ScheduleLabel;
 
@@ -52,4 +55,6 @@ pub mod prelude {
 	pub use crate::containers::WorldExt as ContainersWorldExt;
 	#[cfg(feature = "nesting")]
 	pub use crate::nesting::prelude::*;
+	#[cfg(feature = "states")]
+	pub use crate::states::prelude::*;
 }
