@@ -1,6 +1,4 @@
 use bevy_app::prelude::*;
-#[allow(unused_imports)]
-use bevy_ecs::prelude::*;
 use bevy_schedules_ext::prelude::*;
 
 // Define our schedules
