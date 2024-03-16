@@ -141,14 +141,7 @@ pub mod app_ext {
 			#[cfg(not(feature = "nesting_containers"))]
 			{
 				// Convert the children into systems and add them to the parent schedule
-				let mut schedules = self.world.resource_mut::<Schedules>();
-				if let Some(schedule) = schedules.get_mut(label) {
-					schedule.add_systems(children.into_systems());
-				} else {
-					let mut new_schedule = Schedule::new(label);
-					new_schedule.add_systems(children.into_systems());
-					schedules.insert(new_schedule);
-				}
+				self.add_systems(label, children.into_systems());
 			}
 
 			#[cfg(feature = "nesting_containers")]
