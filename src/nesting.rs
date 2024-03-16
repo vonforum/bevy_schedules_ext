@@ -4,6 +4,11 @@ use bevy_ecs::{
 	schedule::{InternedScheduleLabel, ScheduleLabel, SystemConfigs},
 };
 
+pub mod prelude {
+	#[cfg(feature = "app_ext")]
+	pub use super::app_ext::AppExt as NestingAppExt;
+}
+
 /// A trait for converting a schedule or a tuple of schedules into different types
 pub trait SchedulesIntoConfigs<Marker>
 where

@@ -39,17 +39,17 @@
 //! ```
 #![doc = include_str!("../docs/cargo_features.md")]
 
-#[cfg(feature = "nesting")]
-pub mod nesting;
-
 #[cfg(feature = "containers")]
 pub mod containers;
+
+#[cfg(feature = "nesting")]
+pub mod nesting;
 
 pub mod prelude {
 	pub use bevy_ecs::schedule::ScheduleLabel;
 
 	#[cfg(feature = "containers")]
 	pub use crate::containers::WorldExt as ContainersWorldExt;
-	#[cfg(all(feature = "nesting", feature = "app_ext"))]
-	pub use crate::nesting::app_ext::AppExt as NestingAppExt;
+	#[cfg(feature = "nesting")]
+	pub use crate::nesting::prelude::*;
 }
