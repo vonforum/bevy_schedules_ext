@@ -52,7 +52,7 @@ fn main() {
 	app.run();
 }
 
-// - Example systems
+// Example systems
 
 fn a() {
 	println!("A");
