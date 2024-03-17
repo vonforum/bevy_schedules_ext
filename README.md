@@ -113,6 +113,9 @@ vanilla Bevy to handle groups that might overlap.
 | `0.14.0-dev` | [`master` branch][1]         |
 |       `0.13` | `0.13.2`                     |
 
+*Note: A newer version of this crate **may** work on an older version of Bevy and vice versa, however it's not tested
+and would require extra work on your part (e.g. patching `Cargo.toml` to match the versions).*
+
 # License
 
 All code in this repository is dual-licensed under either:
