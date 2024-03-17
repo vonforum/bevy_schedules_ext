@@ -15,7 +15,7 @@ app_ext = ["dep:bevy_app"]
 containers = ["dep:bevy_utils"]
 nesting = []
 nesting_containers = ["containers", "nesting"]
-states = ["containers"]
+states = []
 
 [dependencies]
 bevy_app = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
