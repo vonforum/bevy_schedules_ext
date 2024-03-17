@@ -26,3 +26,8 @@ bevy_utils = { version = "0.13.0", default-features = false, optional = true }
 name = "nested_schedules"
 path = "examples/nested_schedules.rs"
 required-features = ["nesting", "app_ext"]
+
+[[example]]
+name = "states"
+path = "examples/states.rs"
+required-features = ["states", "app_ext"]
