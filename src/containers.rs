@@ -1,7 +1,4 @@
-use bevy_ecs::{
-	prelude::{Resource, World},
-	schedule::InternedScheduleLabel,
-};
+use bevy_ecs::{prelude::*, schedule::InternedScheduleLabel};
 use bevy_utils::{HashMap, HashSet};
 
 #[derive(Resource)]
@@ -34,12 +31,10 @@ impl<S> Default for ScheduleSystems<S> {
 
 pub trait WorldExt {
 	/// Initializes the [`ScheduleContainers`] resource and inserts a new default container for the given label.
-	fn init_schedule_container<S: Default + Send + Sync + 'static>(
+	fn init_schedule_container<S: FromWorld + Send + Sync + 'static>(
 		&mut self,
 		label: InternedScheduleLabel,
-	) {
-		self.insert_schedule_container(label, S::default());
-	}
+	);
 
 	/// Initializes the [`ScheduleContainers`] resource and inserts a container for the given label, if not yet present.
 	fn insert_schedule_container<S: Send + Sync + 'static>(
@@ -57,6 +52,14 @@ pub trait WorldExt {
 }
 
 impl WorldExt for World {
+	fn init_schedule_container<S: FromWorld + Send + Sync + 'static>(
+		&mut self,
+		label: InternedScheduleLabel,
+	) {
+		let container = S::from_world(self);
+		self.insert_schedule_container(label, container);
+	}
+
 	fn insert_schedule_container<S: Send + Sync + 'static>(
 		&mut self,
 		label: InternedScheduleLabel,
