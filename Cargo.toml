@@ -26,3 +26,8 @@ bevy_utils = { git = "https://github.com/bevyengine/bevy.git", default-features 
 name = "nested_schedules"
 path = "examples/nested_schedules.rs"
 required-features = ["nesting", "app_ext"]
+
+[[example]]
+name = "states"
+path = "examples/states.rs"
+required-features = ["states", "app_ext"]

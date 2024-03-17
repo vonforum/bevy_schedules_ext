@@ -5,7 +5,9 @@ for Sets for system grouping and ordering.
 
 Extends Bevy's existing structures, no `.add_plugin` or managing new Resources.
 
-## Usage
+## Features
+
+### Nesting
 
 Nest one or more schedules:
 
@@ -54,11 +56,55 @@ All systems will run in Bevy's update loop without having to manually call `run`
 
 A full example is available in [examples/nested_schedules.rs](examples/nested_schedules.rs).
 
-## When not to use
+### States
 
-Since running a schedule requires exclusive world access, schedules can't run in parallel. The systems in them
-will follow all the regular Bevy rules for system execution order, but if you need to group systems and those groups
-to potentially run in parallel, you should use Bevy's Sets instead.
+Use Bevy's States as Schedules, so you can add systems to your states and have them run when the state is active,
+no run conditions needed.
+
+<table>
+<tr>
+<td>With <code>bevy_schedules_ext</code></td>
+<td>Vanilla bevy</td>
+</tr>
+
+<tr>
+<td>
+
+```rust
+// Initialize the state
+app.init_schedule_state::<GameState>();
+
+// Add it to our Update loop
+app.add_state_to_schedule::<GameState>(Update);
+
+// Add systems to the state
+app.add_systems(GameState::Menu, menu_system);
+app.add_systems(GameState::Playing, playing_system);
+```
+
+</td>
+
+<td>
+
+```rust
+// Initialize the state, pretty much the same
+app.init_state::<GameState>();
+
+// Add systems to our update loop, but we need to manually check on every frame if the state is active
+app.add_systems(Update, menu_system.run_if(in_state(GameState::Menu)));
+app.add_systems(Update, playing_system.run_if(in_state(GameState::Playing)));
+```
+
+</td>
+<tr>
+</table>
+
+## Downsides
+
+Since running a schedule requires exclusive world access, schedules can't run in parallel. So any time systems in
+different groupings need to run in parallel, nesting or using schedule states will block that. Ideally, you'd use a
+combination of both this crate and vanilla Bevy, with schedules to contain the larger groupings of systems and
+vanilla Bevy to handle groups that might overlap.
 
 # Bevy compatibility
 
