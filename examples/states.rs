@@ -19,13 +19,17 @@ enum GameState {
 fn main() {
 	let mut app = App::new();
 
-	// Add the general schedule, using the default value
-	app.init_state_schedule::<GeneralState>(Update);
+	// Add the general state schedule to update, using the default value
+	app.init_schedule_state::<GeneralState>();
 
-	// Add the game schedule
-	app.insert_state_schedule(GeneralState::Game, GameState::Paused);
+	// Add the game state schedule to the general schedule (only runs in the game state)
+	app.insert_schedule_state(GameState::Paused);
 
-	// Add the systems
+	// Add the states to their schedules
+	app.add_state_to_schedule::<GeneralState>(Update);
+	app.add_state_to_schedule::<GameState>(GeneralState::Game);
+
+	// Add the systems to the state schedules
 	app.add_systems(GeneralState::Menu, menu);
 	app.add_systems(GeneralState::Game, game);
 	app.add_systems(GameState::Ingame, ingame);
@@ -38,9 +42,9 @@ fn main() {
 }
 
 // Example systems
-fn menu(mut next_state: ResMut<NextScheduleState<GeneralState>>) {
+fn menu(mut next_state: ResMut<NextState<GeneralState>>) {
 	println!("Menu");
-	next_state.set(Update, GeneralState::Game);
+	next_state.set(GeneralState::Game);
 }
 
 fn game() {
@@ -51,7 +55,7 @@ fn ingame() {
 	println!(" (ingame)");
 }
 
-fn paused(mut next_state: ResMut<NextScheduleState<GameState>>) {
+fn paused(mut next_state: ResMut<NextState<GameState>>) {
 	println!(" (paused)");
-	next_state.set(GeneralState::Game, GameState::Ingame);
+	next_state.set(GameState::Ingame);
 }
