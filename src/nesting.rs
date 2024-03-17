@@ -14,6 +14,10 @@ pub trait SchedulesIntoConfigs<Marker>
 where
 	Self: Sized,
 {
+	#[deprecated(
+		since = "0.13.2",
+		note = "Use containers (`into_vec`) instead, see history for the original implementation if you still need it."
+	)]
 	fn into_systems(self) -> SystemConfigs;
 	fn into_vec(&self) -> Vec<InternedScheduleLabel>;
 }
