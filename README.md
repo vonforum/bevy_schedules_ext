@@ -111,7 +111,7 @@ vanilla Bevy to handle groups that might overlap.
 | Bevy version | `bevy_schedules_ext` version |
 |-------------:|:-----------------------------|
 | `0.14.0-dev` | [`master` branch][1]         |
-|       `0.13` | `0.13.1`                     |
+|       `0.13` | `0.13.2`                     |
 
 # License
 
