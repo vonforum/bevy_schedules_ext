@@ -10,11 +10,10 @@ categories = ["game-development", "game-engines"]
 readme = "README.md"
 
 [features]
-default = ["app_ext", "nesting_containers", "states"]
+default = ["app_ext", "nesting", "states"]
 app_ext = ["dep:bevy_app"]
 containers = ["dep:bevy_utils"]
-nesting = []
-nesting_containers = ["containers", "nesting"]
+nesting = ["containers", "dep:bevy_utils"]
 states = []
 
 [dependencies]

@@ -1,8 +1,8 @@
 use bevy_ecs::{
-	all_tuples,
 	prelude::*,
 	schedule::{InternedScheduleLabel, ScheduleLabel, SystemConfigs},
 };
+use bevy_utils::all_tuples;
 
 pub mod prelude {
 	#[cfg(feature = "app_ext")]
@@ -71,7 +71,6 @@ macro_rules! impl_schedules_into_configs {
 all_tuples!(impl_schedules_into_configs, 1, 20, S, s, l);
 
 /// Helper to create a system that runs the children of a schedule.
-#[cfg(feature = "nesting_containers")]
 pub fn create_run_children_system(label: InternedScheduleLabel) -> impl FnMut(&mut World) {
 	type Containers = crate::containers::ScheduleContainers<Vec<InternedScheduleLabel>>;
 	move |world: &mut World| {
@@ -147,35 +146,26 @@ pub mod app_ext {
 
 			let label = parent.intern();
 
-			#[cfg(not(feature = "nesting_containers"))]
+			use crate::containers::*;
+
+			type Inner = Vec<InternedScheduleLabel>;
+
+			self.world.init_schedule_container::<Inner>(label); // Initialize the container if not yet present
+			if self
+				.world
+				.insert_schedule_container_system_marker::<Inner>(label)
 			{
-				// Convert the children into systems and add them to the parent schedule
-				self.add_systems(label, children.into_systems());
+				// If the system to run the child schedules isn't present yet, add it
+				self.add_systems(label, create_run_children_system(label));
 			}
 
-			#[cfg(feature = "nesting_containers")]
-			{
-				use crate::containers::*;
-
-				type Inner = Vec<InternedScheduleLabel>;
-
-				self.world.init_schedule_container::<Inner>(label); // Initialize the container if not yet present
-				if self
-					.world
-					.insert_schedule_container_system_marker::<Inner>(label)
-				{
-					// If the system to run the child schedules isn't present yet, add it
-					self.add_systems(label, create_run_children_system(label));
-				}
-
-				// Add the children to the container
-				self.world
-					.resource_mut::<ScheduleContainers<Inner>>()
-					.inner
-					.get_mut(&label)
-					.unwrap()
-					.extend(children.into_vec());
-			}
+			// Add the children to the container
+			self.world
+				.resource_mut::<ScheduleContainers<Inner>>()
+				.inner
+				.get_mut(&label)
+				.unwrap()
+				.extend(children.into_vec());
 
 			self
 		}
