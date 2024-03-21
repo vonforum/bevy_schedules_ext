@@ -1,5 +1,8 @@
+//! Extends Bevy to allow using states as schedules.
+
 use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
 
+/// Exports the state schedules app extension if the feature is enabled and re-exports Bevy's [`States`].
 pub mod prelude {
 	pub use bevy_ecs::schedule::States;
 
@@ -30,6 +33,7 @@ pub mod app_ext {
 
 	use super::*;
 
+	/// Adds methods for working with state schedules.
 	pub trait AppExt {
 		/// Initializes a [`State`] schedule with standard starting values.
 		///

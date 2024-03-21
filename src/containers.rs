@@ -1,8 +1,12 @@
+//! Extends Bevy's World with helpers for managing containers for schedules.
+
 use bevy_ecs::{prelude::*, schedule::InternedScheduleLabel};
 use bevy_utils::{HashMap, HashSet};
 
+/// A resource containing a map of a parent schedule to a container of child schedule(s).
 #[derive(Resource)]
 pub struct ScheduleContainers<S> {
+	/// The map of parent schedules to containers.
 	pub inner: HashMap<InternedScheduleLabel, S>,
 }
 
@@ -14,8 +18,10 @@ impl<S> Default for ScheduleContainers<S> {
 	}
 }
 
+/// A marker for whether a system to run the container of a schedule has been added.
 #[derive(Resource)]
 pub struct ScheduleSystems<S> {
+	/// The set of schedules that have a system to run their container.
 	pub inner: HashSet<InternedScheduleLabel>,
 	phantom: std::marker::PhantomData<S>,
 }
@@ -29,6 +35,7 @@ impl<S> Default for ScheduleSystems<S> {
 	}
 }
 
+/// Adds methods to [`World`] for managing schedule containers.
 pub trait WorldExt {
 	/// Initializes the [`ScheduleContainers`] resource and inserts a new default container for the given label.
 	fn init_schedule_container<S: FromWorld + Send + Sync + 'static>(

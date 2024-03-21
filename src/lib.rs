@@ -38,6 +38,7 @@
 //! app.add_systems(GrandchildTwo, grandchild_system_two);
 //! ```
 #![doc = include_str!("../docs/cargo_features.md")]
+#![warn(missing_docs)]
 
 #[cfg(feature = "containers")]
 pub mod containers;
@@ -48,6 +49,9 @@ pub mod nesting;
 #[cfg(feature = "states")]
 pub mod states;
 
+/// Exposes all enabled app extensions and re-exports Bevy's [`ScheduleLabel`].
+///
+/// [`ScheduleLabel`]: bevy_ecs::schedule::ScheduleLabel
 pub mod prelude {
 	pub use bevy_ecs::schedule::ScheduleLabel;
 

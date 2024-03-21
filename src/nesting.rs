@@ -1,3 +1,5 @@
+//! Extends Bevy to enable nesting schedules.
+
 use bevy_ecs::{
 	prelude::*,
 	schedule::{InternedScheduleLabel, ScheduleLabel},
