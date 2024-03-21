@@ -1,41 +1,29 @@
 use bevy_ecs::{
 	prelude::*,
-	schedule::{InternedScheduleLabel, ScheduleLabel, SystemConfigs},
+	schedule::{InternedScheduleLabel, ScheduleLabel},
 };
 use bevy_utils::all_tuples;
 
+/// Exports the app extension if the feature is enabled.
 pub mod prelude {
 	#[cfg(feature = "app_ext")]
 	pub use super::app_ext::AppExt as NestingAppExt;
 }
 
-/// A trait for converting a schedule or a tuple of schedules into different types
+/// A trait for converting a schedule or a tuple of schedules into a container compatible form.
 pub trait SchedulesIntoConfigs<Marker>
 where
 	Self: Sized,
 {
-	#[deprecated(
-		since = "0.13.2",
-		note = "Use containers (`into_vec`) instead, see history for the original implementation if you still need it."
-	)]
-	fn into_systems(self) -> SystemConfigs;
-	fn into_vec(&self) -> Vec<InternedScheduleLabel>;
+	/// Converts the schedule or tuple of schedules into a vector of labels.
+	fn to_vec(&self) -> Vec<InternedScheduleLabel>;
 }
 
 impl<T> SchedulesIntoConfigs<()> for T
 where
 	T: ScheduleLabel,
 {
-	fn into_systems(self) -> SystemConfigs {
-		let label = self.intern();
-
-		(move |world: &mut World| {
-			world.run_schedule(label);
-		})
-		.into_configs()
-	}
-
-	fn into_vec(&self) -> Vec<InternedScheduleLabel> {
+	fn to_vec(&self) -> Vec<InternedScheduleLabel> {
 		vec![self.intern()]
 	}
 }
@@ -50,17 +38,7 @@ macro_rules! impl_schedules_into_configs {
             $($sys: ScheduleLabel),*
         {
             #[allow(non_snake_case)]
-            fn into_systems(self) -> SystemConfigs {
-                let ($($name,)*) = self;
-				let ($($label,)*) = ($($name.intern(),)*);
-
-				($(move |world: &mut World| {
-					world.run_schedule($label);
-				}, )*).into_configs().chain()
-            }
-
-			#[allow(non_snake_case)]
-			fn into_vec(&self) -> Vec<InternedScheduleLabel> {
+			fn to_vec(&self) -> Vec<InternedScheduleLabel> {
 				let ($($name,)*) = self;
 				vec![$($name.intern(),)*]
 			}
@@ -94,13 +72,14 @@ pub fn create_run_children_system(label: InternedScheduleLabel) -> impl FnMut(&m
 	}
 }
 
-/// Adds the [`add_schedules`](App::add_schedules) method to the `App` type.
+/// Adds methods to the [`App`] type for working with nested schedules.
 #[cfg(feature = "app_ext")]
 pub mod app_ext {
 	use bevy_app::prelude::*;
 
 	use super::*;
 
+	/// Adds the [`add_schedules`](App::add_schedules) method to the `App` type.
 	pub trait AppExt {
 		/// Add subschedules to a given schedule in this app.
 		///
@@ -140,7 +119,7 @@ pub mod app_ext {
 			children: S,
 		) -> &mut Self {
 			// Initialize child schedules in the world
-			children.into_vec().iter().for_each(|&label| {
+			children.to_vec().iter().for_each(|&label| {
 				self.init_schedule(label);
 			});
 
@@ -165,7 +144,7 @@ pub mod app_ext {
 				.inner
 				.get_mut(&label)
 				.unwrap()
-				.extend(children.into_vec());
+				.extend(children.to_vec());
 
 			self
 		}
