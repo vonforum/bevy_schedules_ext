@@ -49,8 +49,12 @@ pub mod nesting;
 #[cfg(feature = "states")]
 pub mod states;
 
-/// Exposes all enabled app extensions.
+/// Exposes all enabled app extensions and re-exports Bevy's [`ScheduleLabel`].
+///
+/// [`ScheduleLabel`]: bevy_ecs::schedule::ScheduleLabel
 pub mod prelude {
+	pub use bevy_ecs::schedule::ScheduleLabel;
+
 	#[cfg(feature = "containers")]
 	pub use crate::containers::WorldExt as ContainersWorldExt;
 	#[cfg(feature = "nesting")]
