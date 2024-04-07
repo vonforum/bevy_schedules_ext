@@ -20,11 +20,11 @@ fn main() {
 	let mut app = App::new();
 
 	// Add the general state schedule to update, using the default value
-	app.init_schedule_state::<GeneralState>();
+	app.init_state::<GeneralState>();
 	app.add_state_to_schedule::<GeneralState>(Update);
 
 	// Add the game state schedule to the general schedule
-	app.insert_schedule_state(GameState::Paused);
+	app.insert_state(GameState::Paused);
 	app.add_state_to_schedule::<GameState>(GeneralState::Game);
 
 	// Add the systems to the state schedules

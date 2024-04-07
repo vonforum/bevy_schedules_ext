@@ -35,19 +35,6 @@ pub mod app_ext {
 
 	/// Adds methods for working with state schedules.
 	pub trait AppExt {
-		/// Initializes a [`State`] schedule with standard starting values.
-		///
-		/// If the state already exists, nothing happens.
-		///
-		/// Also adds everything that calling [`App::init_state`] would add.
-		fn init_schedule_state<S: FromWorld + States + ScheduleLabel>(&mut self) -> &mut Self;
-
-		/// Inserts a specific [`State`] schedule into the [`App`] and
-		/// overrides any existing state of the same type.
-		///
-		/// Also adds everything that calling [`App::insert_state`] would add.
-		fn insert_schedule_state<S: States + ScheduleLabel>(&mut self, state: S) -> &mut Self;
-
 		/// Adds a state to a schedule. The state needs to have been created already either
 		/// through [init_schedule_state](`App::init_schedule_state`) or
 		/// [insert_schedule_state](`App::insert_schedule_state`).
@@ -69,7 +56,7 @@ pub mod app_ext {
 		/// #
 		/// # let mut app = App::new();
 		/// #
-		/// app.init_schedule_state::<State>();
+		/// app.init_state::<State>();
 		/// app.add_state_to_schedule::<State>(Update);
 		/// ```
 		fn add_state_to_schedule<S: States + ScheduleLabel>(
@@ -79,17 +66,6 @@ pub mod app_ext {
 	}
 
 	impl AppExt for App {
-		fn init_schedule_state<S: FromWorld + States + ScheduleLabel>(&mut self) -> &mut Self {
-			// init_schedule needs a value
-			let schedule = S::from_world(&mut self.world);
-			self.init_state::<S>().init_schedule(schedule)
-		}
-
-		fn insert_schedule_state<S: States + ScheduleLabel>(&mut self, state: S) -> &mut Self {
-			let schedule = state.intern();
-			self.insert_state(state).init_schedule(schedule)
-		}
-
 		fn add_state_to_schedule<S: States + ScheduleLabel>(
 			&mut self,
 			parent: impl ScheduleLabel,

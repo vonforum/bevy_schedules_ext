@@ -54,7 +54,7 @@ app.add_systems(Update, grandchild_system_two.in_set(GrandchildTwo));
 
 All systems will run in Bevy's update loop without having to manually call `run` on the custom schedules.
 
-A full example is available in [examples/nested_schedules.rs](examples/nested_schedules.rs).
+A full example is available in [examples/nested_schedules.rs][1].
 
 ### States
 
@@ -72,7 +72,7 @@ no run conditions needed.
 
 ```rust
 // Initialize the state
-app.init_schedule_state::<GameState>();
+app.init_state::<GameState>();
 
 // Add it to our Update loop
 app.add_state_to_schedule::<GameState>(Update);
@@ -90,7 +90,7 @@ app.add_systems(GameState::Playing, playing_system);
 // Initialize the state, pretty much the same
 app.init_state::<GameState>();
 
-// Add systems to our update loop, but we need to manually check on every frame if the state is active
+// Add systems to our update loop, but we need to check on every frame if the state is active
 app.add_systems(Update, menu_system.run_if(in_state(GameState::Menu)));
 app.add_systems(Update, playing_system.run_if(in_state(GameState::Playing)));
 ```
@@ -98,6 +98,8 @@ app.add_systems(Update, playing_system.run_if(in_state(GameState::Playing)));
 </td>
 <tr>
 </table>
+
+A full example is available in [examples/states.rs][2].
 
 ## Downsides
 
@@ -108,10 +110,10 @@ vanilla Bevy to handle groups that might overlap.
 
 # Bevy compatibility
 
-| Bevy version | `bevy_schedules_ext` version |
-|-------------:|:-----------------------------|
-| `0.14.0-dev` | [`master` branch][1]         |
-|       `0.13` | `0.13.2`                     |
+|  Bevy version | `bevy_schedules_ext` version |
+|--------------:|:-----------------------------|
+| `main` branch | [`master` branch][3]         |
+|        `0.13` | `0.13`                       |
 
 *Note: A newer version of this crate **may** work on an older version of Bevy and vice versa, however it's not tested
 and would require extra work on your part (e.g. patching `Cargo.toml` to match the versions).*
@@ -130,4 +132,6 @@ at your option. This means you can select the license you prefer.
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you,
 as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
 
-[1]: https://github.com/vonforum/bevy_schedules_ext/tree/master
+[1]: https://github.com/vonforum/bevy_schedules_ext/tree/master/examples/nested_schedules.rs
+[2]: https://github.com/vonforum/bevy_schedules_ext/tree/master/examples/states.rs
+[3]: https://github.com/vonforum/bevy_schedules_ext/tree/master
