@@ -1,5 +1,5 @@
 use bevy_app::prelude::*;
-use bevy_ecs::prelude::*;
+use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
 use bevy_schedules_ext::prelude::*;
 
 #[derive(ScheduleLabel, States, Debug, Default, Hash, PartialEq, Eq, Clone)]

@@ -1,4 +1,5 @@
 use bevy_app::prelude::*;
+use bevy_ecs::schedule::ScheduleLabel;
 use bevy_schedules_ext::prelude::*;
 
 // Define our schedules
