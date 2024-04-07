@@ -43,7 +43,7 @@ pub mod app_ext {
 		///
 		/// ```
 		/// # use bevy_app::prelude::*;
-		/// # use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
+		/// # use bevy_ecs::prelude::*;
 		/// #
 		/// # use bevy_schedules_ext::prelude::*;
 		/// #
