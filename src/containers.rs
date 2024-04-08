@@ -1,10 +1,15 @@
 //! Extends Bevy's World with helpers for managing containers for schedules.
 
-use bevy_ecs::{prelude::*, schedule::InternedScheduleLabel};
+use bevy_ecs::{
+	prelude::*,
+	schedule::{InternedScheduleLabel, ScheduleLabel},
+};
 use bevy_utils::HashMap;
 
 /// Exports the container world extension, plus the [`Container`] trait.
 pub mod prelude {
+	#[cfg(feature = "app_ext")]
+	pub use super::app_ext::AppExt as ContainersAppExt;
 	pub use super::{Container, ScheduleContainers, WorldExt as ContainersWorldExt};
 }
 
@@ -91,6 +96,56 @@ impl WorldExt for World {
 			true
 		} else {
 			false
+		}
+	}
+}
+
+/// Adds methods to [`App`] for managing schedule containers.
+#[cfg(feature = "app_ext")]
+pub mod app_ext {
+	use bevy_app::prelude::*;
+
+	use super::*;
+
+	/// Adds the [`add_schedule_container`](App::add_schedule_container) method to the `App` type.
+	pub trait AppExt {
+		/// Initializes the [`ScheduleContainers`] resource and inserts a new default container for the given label.
+		/// Adds a system to run the container to the given schedule.
+		fn init_schedule_container<S: Container + FromWorld>(
+			&mut self,
+			label: impl ScheduleLabel,
+		) -> &mut Self;
+
+		/// Initializes the [`ScheduleContainers`] resource and inserts a container for the given label, if not yet present.
+		/// Adds a system to run the container to the given schedule.
+		fn insert_schedule_container<S: Container>(
+			&mut self,
+			label: impl ScheduleLabel,
+			container: S,
+		) -> &mut Self;
+	}
+
+	impl AppExt for App {
+		fn init_schedule_container<S: Container + FromWorld>(
+			&mut self,
+			label: impl ScheduleLabel,
+		) -> &mut Self {
+			let container = S::from_world(&mut self.world);
+			self.insert_schedule_container(label, container)
+		}
+
+		fn insert_schedule_container<S: Container>(
+			&mut self,
+			label: impl ScheduleLabel,
+			container: S,
+		) -> &mut Self {
+			let label = label.intern();
+
+			if self.world.insert_schedule_container(label, container) {
+				self.add_systems(label, run_container_system::<S>(label));
+			}
+
+			self
 		}
 	}
 }

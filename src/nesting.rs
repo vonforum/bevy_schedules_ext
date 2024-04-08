@@ -76,7 +76,6 @@ pub mod app_ext {
 	use bevy_app::prelude::*;
 
 	use super::*;
-	use crate::containers::run_container_system;
 
 	/// Adds the [`add_schedules`](App::add_schedules) method to the `App` type.
 	pub trait AppExt {
@@ -109,6 +108,32 @@ pub mod app_ext {
 			parent: P,
 			children: S,
 		) -> &mut Self;
+
+		/// Edit the children of a schedule in this app.
+		/// This function allows you to modify the children of a schedule after they have been added.
+		///
+		/// # Examples
+		///
+		/// ```
+		/// # use bevy_app::prelude::*;
+		/// # use bevy_ecs::prelude::*;
+		/// #
+		/// # use bevy_schedules_ext::prelude::*;
+		/// #
+		/// # #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+		/// # struct Child;
+		/// #
+		/// # let mut app = App::new();
+		/// #
+		/// app.edit_schedule_children(Update, |children| {
+		///    children.push(Child.intern());
+		/// });
+		/// ```
+		fn edit_schedule_children(
+			&mut self,
+			label: impl ScheduleLabel,
+			f: impl FnOnce(&mut Vec<InternedScheduleLabel>),
+		) -> &mut Self;
 	}
 
 	impl AppExt for App {
@@ -126,10 +151,7 @@ pub mod app_ext {
 			let label = parent.intern();
 
 			// Initialize the container if not yet present
-			if self.world.init_schedule_container::<NestedSchedules>(label) {
-				// If the container wasn't present, add a system to run the children
-				self.add_systems(label, run_container_system::<NestedSchedules>(label));
-			}
+			self.init_schedule_container::<NestedSchedules>(label);
 
 			// Add the children to the container
 			self.world
@@ -139,6 +161,26 @@ pub mod app_ext {
 				.unwrap()
 				.inner
 				.extend(container.inner);
+
+			self
+		}
+
+		fn edit_schedule_children(
+			&mut self,
+			label: impl ScheduleLabel,
+			f: impl FnOnce(&mut Vec<InternedScheduleLabel>),
+		) -> &mut Self {
+			let label = label.intern();
+
+			// Initialize the container if not yet present
+			self.init_schedule_container::<NestedSchedules>(label);
+
+			let mut container = self
+				.world
+				.resource_mut::<ScheduleContainers<NestedSchedules>>();
+			let children = container.inner.get_mut(&label).unwrap();
+
+			f(&mut children.inner);
 
 			self
 		}
