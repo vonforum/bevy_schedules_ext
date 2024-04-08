@@ -125,13 +125,13 @@ pub mod app_ext {
 		/// #
 		/// # let mut app = App::new();
 		/// #
-		/// app.edit_schedule_children(Update, |children| {
+		/// app.edit_nested_schedules(Update, |children| {
 		///    children.push(Child.intern());
 		/// });
 		/// ```
-		fn edit_schedule_children(
+		fn edit_nested_schedules(
 			&mut self,
-			label: impl ScheduleLabel,
+			parent: impl ScheduleLabel,
 			f: impl FnOnce(&mut Vec<InternedScheduleLabel>),
 		) -> &mut Self;
 	}
@@ -165,12 +165,12 @@ pub mod app_ext {
 			self
 		}
 
-		fn edit_schedule_children(
+		fn edit_nested_schedules(
 			&mut self,
-			label: impl ScheduleLabel,
+			parent: impl ScheduleLabel,
 			f: impl FnOnce(&mut Vec<InternedScheduleLabel>),
 		) -> &mut Self {
-			let label = label.intern();
+			let label = parent.intern();
 
 			// Initialize the container if not yet present
 			self.init_schedule_container::<NestedSchedules>(label);
