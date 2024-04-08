@@ -125,8 +125,9 @@ pub mod app_ext {
 		/// #
 		/// # let mut app = App::new();
 		/// #
+		/// app.add_schedules(Update, Child);
 		/// app.edit_nested_schedules(Update, |children| {
-		///    children.push(Child.intern());
+		///    children.clear();
 		/// });
 		/// ```
 		fn edit_nested_schedules(
