@@ -109,8 +109,10 @@ pub mod app_ext {
 			children: S,
 		) -> &mut Self;
 
-		/// Edit the children of a schedule in this app.
+		/// Edit the nested schedules of a parent schedule.
 		/// This function allows you to modify the children of a schedule after they have been added.
+		///
+		/// If adding schedules with this method, make sure to call [`init_schedule`](App::init_schedule) first.
 		///
 		/// # Examples
 		///
@@ -127,13 +129,13 @@ pub mod app_ext {
 		/// #
 		/// app.add_schedules(Update, Child);
 		/// app.edit_nested_schedules(Update, |children| {
-		///    children.clear();
+		///    children.inner.clear();
 		/// });
 		/// ```
 		fn edit_nested_schedules(
 			&mut self,
 			parent: impl ScheduleLabel,
-			f: impl FnOnce(&mut Vec<InternedScheduleLabel>),
+			f: impl FnOnce(&mut NestedSchedules),
 		) -> &mut Self;
 	}
 
@@ -169,7 +171,7 @@ pub mod app_ext {
 		fn edit_nested_schedules(
 			&mut self,
 			parent: impl ScheduleLabel,
-			f: impl FnOnce(&mut Vec<InternedScheduleLabel>),
+			f: impl FnOnce(&mut NestedSchedules),
 		) -> &mut Self {
 			let label = parent.intern();
 
@@ -181,7 +183,7 @@ pub mod app_ext {
 				.resource_mut::<ScheduleContainers<NestedSchedules>>();
 			let children = container.inner.get_mut(&label).unwrap();
 
-			f(&mut children.inner);
+			f(children);
 
 			self
 		}
