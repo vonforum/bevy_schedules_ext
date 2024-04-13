@@ -130,7 +130,7 @@ pub mod app_ext {
 			&mut self,
 			label: impl ScheduleLabel,
 		) -> &mut Self {
-			let container = S::from_world(&mut self.world);
+			let container = S::from_world(self.world_mut());
 			self.insert_schedule_container(label, container)
 		}
 
@@ -141,7 +141,7 @@ pub mod app_ext {
 		) -> &mut Self {
 			let label = label.intern();
 
-			if self.world.insert_schedule_container(label, container) {
+			if self.world_mut().insert_schedule_container(label, container) {
 				self.add_systems(label, run_container_system::<S>(label));
 			}
 

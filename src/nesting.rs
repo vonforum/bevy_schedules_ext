@@ -157,7 +157,7 @@ pub mod app_ext {
 			self.init_schedule_container::<NestedSchedules>(label);
 
 			// Add the children to the container
-			self.world
+			self.world_mut()
 				.resource_mut::<ScheduleContainers<NestedSchedules>>()
 				.inner
 				.get_mut(&label)
@@ -179,7 +179,7 @@ pub mod app_ext {
 			self.init_schedule_container::<NestedSchedules>(label);
 
 			let mut container = self
-				.world
+				.world_mut()
 				.resource_mut::<ScheduleContainers<NestedSchedules>>();
 			let children = container.inner.get_mut(&label).unwrap();
 
