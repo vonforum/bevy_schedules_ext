@@ -71,13 +71,10 @@ no run conditions needed.
 <td>
 
 ```rust
-// Initialize the state
-app.init_state::<GameState>();
+// Init state and add it to our Update loop
+app.init_state_to_schedule::<GameState>(Update);
 
-// Add it to our Update loop
-app.add_state_to_schedule::<GameState>(Update);
-
-// Add systems to the state
+// Add systems to the specific states
 app.add_systems(GameState::Menu, menu_system);
 app.add_systems(GameState::Playing, playing_system);
 ```
