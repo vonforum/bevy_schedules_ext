@@ -1,6 +1,9 @@
 //! Extends Bevy to allow using states as schedules.
 
-use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
+use bevy_ecs::{
+	prelude::*,
+	schedule::{FreelyMutableState, ScheduleLabel},
+};
 
 /// Exports the state schedules app extension if the feature is enabled and re-exports Bevy's [`States`].
 pub mod prelude {
@@ -37,7 +40,7 @@ pub mod app_ext {
 	pub trait AppExt {
 		/// Initializes a state to a schedule. The state also needs to implement [`ScheduleLabel`].
 		/// See [`insert_state_to_schedule`] for usage.
-		fn init_state_to_schedule<S: States + ScheduleLabel + FromWorld>(
+		fn init_state_to_schedule<S: FreelyMutableState + ScheduleLabel + FromWorld>(
 			&mut self,
 			parent: impl ScheduleLabel,
 		) -> &mut Self;
@@ -63,7 +66,7 @@ pub mod app_ext {
 		/// #
 		/// app.init_state_to_schedule::<State>(Update);
 		/// ```
-		fn insert_state_to_schedule<S: States + ScheduleLabel>(
+		fn insert_state_to_schedule<S: FreelyMutableState + ScheduleLabel>(
 			&mut self,
 			parent: impl ScheduleLabel,
 			state: S,
@@ -71,7 +74,7 @@ pub mod app_ext {
 	}
 
 	impl AppExt for App {
-		fn init_state_to_schedule<S: States + ScheduleLabel + FromWorld>(
+		fn init_state_to_schedule<S: FreelyMutableState + ScheduleLabel + FromWorld>(
 			&mut self,
 			parent: impl ScheduleLabel,
 		) -> &mut Self {
@@ -79,7 +82,7 @@ pub mod app_ext {
 			self.insert_state_to_schedule(parent, state)
 		}
 
-		fn insert_state_to_schedule<S: States + ScheduleLabel>(
+		fn insert_state_to_schedule<S: FreelyMutableState + ScheduleLabel>(
 			&mut self,
 			parent: impl ScheduleLabel,
 			state: S,
