@@ -1,6 +1,7 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_schedules_ext::prelude::*;
+use bevy_state::{app::StatesPlugin, prelude::*};
 
 #[derive(ScheduleLabel, States, Debug, Default, Hash, PartialEq, Eq, Clone)]
 enum GeneralState {
@@ -17,6 +18,9 @@ enum GameState {
 
 fn main() {
 	let mut app = App::new();
+
+	// Adds the state transition schedule - available by default when using bevy normally
+	app.add_plugins(StatesPlugin);
 
 	// Add the general state schedule to update, using the default value
 	app.init_state_to_schedule::<GeneralState>(Update);

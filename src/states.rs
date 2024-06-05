@@ -1,13 +1,11 @@
 //! Extends Bevy to allow using states as schedules.
 
-use bevy_ecs::{
-	prelude::*,
-	schedule::{FreelyMutableState, ScheduleLabel},
-};
+use bevy_ecs::{prelude::*, schedule::ScheduleLabel};
+use bevy_state::{prelude::*, state::FreelyMutableState};
 
 /// Exports the state schedules app extension if the feature is enabled and re-exports Bevy's [`States`].
 pub mod prelude {
-	pub use bevy_ecs::schedule::States;
+	pub use bevy_state::state::States;
 
 	#[cfg(feature = "app_ext")]
 	pub use super::app_ext::AppExt as StatesAppExt;
