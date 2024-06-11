@@ -20,9 +20,7 @@ states = ["dep:bevy_state"]
 bevy_app = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
 bevy_ecs = { git = "https://github.com/bevyengine/bevy.git", default-features = false }
 bevy_utils = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
-bevy_state = { git = "https://github.com/bevyengine/bevy.git", default-features = false, features = [
-	"bevy_hierarchy",
-], optional = true }
+bevy_state = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
 
 [[example]]
 name = "nested_schedules"
