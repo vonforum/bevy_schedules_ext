@@ -105,23 +105,23 @@ different groupings need to run in parallel, nesting or using schedule states wi
 combination of both this crate and vanilla Bevy, with schedules to contain the larger groupings of systems and
 vanilla Bevy to handle groups that might overlap.
 
-# Bevy compatibility
+## Bevy compatibility
 
 |  Bevy version | `bevy_schedules_ext` version |
 |--------------:|:-----------------------------|
 | `main` branch | [`master` branch][3]         |
-|     `0.14.1`  | `0.14.1`                     |
+|      `0.14.1` | `0.14.1`                     |
 |        `0.13` | `0.13`                       |
 
 *Note: A newer version of this crate **may** work on an older version of Bevy and vice versa, however it's not tested
 and would require extra work on your part (e.g. patching `Cargo.toml` to match the versions).*
 
-# License
+## License
 
 All code in this repository is dual-licensed under either:
 
-- MIT License (LICENSE-MIT or http://opensource.org/licenses/MIT)
-- Apache License, Version 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0)
+- MIT License (LICENSE-MIT or [http://opensource.org/licenses/MIT][4])
+- Apache License, Version 2.0 (LICENSE-APACHE or [http://www.apache.org/licenses/LICENSE-2.0][5])
 
 at your option. This means you can select the license you prefer.
 
@@ -133,3 +133,5 @@ as defined in the Apache-2.0 license, shall be dual licensed as above, without a
 [1]: https://github.com/vonforum/bevy_schedules_ext/tree/master/examples/nested_schedules.rs
 [2]: https://github.com/vonforum/bevy_schedules_ext/tree/master/examples/states.rs
 [3]: https://github.com/vonforum/bevy_schedules_ext/tree/master
+[4]: http://opensource.org/licenses/MIT
+[5]: http://www.apache.org/licenses/LICENSE-2.0
