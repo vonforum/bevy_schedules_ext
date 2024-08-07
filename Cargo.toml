@@ -1,6 +1,6 @@
 [package]
 name = "bevy_schedules_ext"
-version = "0.14.0-dev"
+version = "0.14.1"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/vonforum/bevy_schedules_ext"
@@ -17,10 +17,10 @@ nesting = ["containers", "dep:bevy_utils"]
 states = ["dep:bevy_state"]
 
 [dependencies]
-bevy_app = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
-bevy_ecs = { git = "https://github.com/bevyengine/bevy.git", default-features = false }
-bevy_utils = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
-bevy_state = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
+bevy_app = { version = "0.14.1", default-features = false, optional = true }
+bevy_ecs = { version = "0.14.1", default-features = false }
+bevy_utils = { version = "0.14.1", default-features = false, optional = true }
+bevy_state = { version = "0.14.1", default-features = false, optional = true }
 
 [[example]]
 name = "nested_schedules"
