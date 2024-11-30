@@ -110,6 +110,7 @@ vanilla Bevy to handle groups that might overlap.
 |  Bevy version | `bevy_schedules_ext` version |
 |--------------:|:-----------------------------|
 | `main` branch | [`master` branch][3]         |
+|        `0.15` | `0.15`                       |
 |      `0.14.1` | `0.14.1`                     |
 |        `0.13` | `0.13`                       |
 
