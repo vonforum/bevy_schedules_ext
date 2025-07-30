@@ -4,7 +4,7 @@ use bevy_ecs::{
 	prelude::*,
 	schedule::{InternedScheduleLabel, ScheduleLabel},
 };
-use bevy_utils::all_tuples;
+use variadics_please::all_tuples;
 
 use crate::containers::prelude::*;
 

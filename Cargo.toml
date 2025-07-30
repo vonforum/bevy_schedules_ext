@@ -1,6 +1,6 @@
 [package]
 name = "bevy_schedules_ext"
-version = "0.16.0-dev"
+version = "0.17.0-dev"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/vonforum/bevy_schedules_ext"
@@ -12,15 +12,16 @@ readme = "README.md"
 [features]
 default = ["app_ext", "nesting", "states"]
 app_ext = ["dep:bevy_app", "bevy_state?/bevy_app"]
-containers = ["dep:bevy_utils"]
-nesting = ["containers", "dep:bevy_utils"]
+containers = ["dep:bevy_platform"]
+nesting = ["containers", "dep:variadics_please"]
 states = ["dep:bevy_state"]
 
 [dependencies]
 bevy_app = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
 bevy_ecs = { git = "https://github.com/bevyengine/bevy.git", default-features = false }
-bevy_utils = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
+bevy_platform = { git = "https://github.com/bevyengine/bevy.git", optional = true }
 bevy_state = { git = "https://github.com/bevyengine/bevy.git", default-features = false, optional = true }
+variadics_please = { git = "https://github.com/bevyengine/variadics_please.git", optional = true }
 
 [[example]]
 name = "nested_schedules"

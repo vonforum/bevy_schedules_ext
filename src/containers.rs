@@ -4,7 +4,7 @@ use bevy_ecs::{
 	prelude::*,
 	schedule::{InternedScheduleLabel, ScheduleLabel},
 };
-use bevy_utils::HashMap;
+use bevy_platform::collections::HashMap;
 
 /// Exports the container world extension, plus the [`Container`] trait.
 pub mod prelude {
@@ -47,11 +47,13 @@ pub fn run_container_system<S: Container>(label: InternedScheduleLabel) -> impl 
 		children.run(world);
 
 		// Add the children back to the container
-		// Unchecked, because we just removed it before
-		world
-			.resource_mut::<ScheduleContainers<S>>()
-			.inner
-			.insert_unique_unchecked(label, children);
+		// SAFETY: We are inserting a container that we just removed, so it is safe to insert it back.
+		unsafe {
+			world
+				.resource_mut::<ScheduleContainers<S>>()
+				.inner
+				.insert_unique_unchecked(label, children)
+		};
 	}
 }
 
